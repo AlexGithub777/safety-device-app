@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/AlexGithub777/safety-device-tracking/internal/config"
-	"github.com/AlexGithub777/safety-device-tracking/internal/database"
+	"github.com/AlexGithub777/safety-device-app/internal/config"
+	"github.com/AlexGithub777/safety-device-app/internal/database"
 	"github.com/labstack/echo/v4"
 )
 
