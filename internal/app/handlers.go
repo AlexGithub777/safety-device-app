@@ -9,12 +9,12 @@ import (
 )
 
 func (a *App) HomeHandler(c echo.Context) error {
-	tmpl := template.Must(template.ParseFiles("templates/index.html"))
+	tmpl := template.Must(template.ParseFiles("../templates/index.html"))
 	return tmpl.Execute(c.Response().Writer, nil)
 }
 
 func (a *App) DevicesHandler(c echo.Context) error {
-	tmpl := template.Must(template.ParseFiles("templates/devices.html"))
+	tmpl := template.Must(template.ParseFiles("../templates/devices.html"))
 	return tmpl.Execute(c.Response().Writer, nil)
 }
 
