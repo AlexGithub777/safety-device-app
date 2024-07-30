@@ -13,7 +13,7 @@ type DB struct {
 }
 
 func NewDB(cfg config.Config) (*DB, error) {
-	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable",
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%d sslmode=disable",
 		cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBHost, cfg.DBPort)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
