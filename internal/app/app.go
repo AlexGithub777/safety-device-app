@@ -33,6 +33,11 @@ func NewApp(cfg config.Config) *App {
 		panic(err)
 	}
 
+	/*
+		// Seed test data
+		database.SeedData(db.DB)
+	*/
+
 	app := &App{
 		DB:     db,
 		Router: router,

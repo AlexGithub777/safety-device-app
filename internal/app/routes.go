@@ -8,4 +8,6 @@ func (a *App) initRoutes() {
 
 	// API routes
 	a.Router.GET("/api/fire-extinguishers-html", a.GetFireExtinguishersHTML)
+	a.Router.POST("/api/fire-extinguishers", a.CreateFireExtinguisher)
+
 }
