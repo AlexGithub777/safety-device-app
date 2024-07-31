@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fire Extinguishers</title>
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fire Extinguishers</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Safety Device ID</th>
+                <th>Type ID</th>
+                <th>Serial Number</th>
+                <th>Date of Manufacture</th>
+                <th>Expire Date</th>
+                <th>Size</th>
+                <th>Misc</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="fire-extinguishers-body" 
+            hx-get="/api/fire-extinguishers-html" 
+            hx-trigger="load" 
+            hx-swap="innerHTML">
+            <!-- Rows will be dynamically loaded here -->
+        </tbody>
+    </table>
+</body>
+</html>

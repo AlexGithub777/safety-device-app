@@ -1,37 +1,49 @@
 package app
 
 import (
-	"html/template"
 	"net/http"
 
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 	"github.com/labstack/echo/v4"
 )
 
+// HomeHandler serves the home page
 func (a *App) HomeHandler(c echo.Context) error {
-	tmpl := template.Must(template.ParseFiles("../templates/index.html"))
-	return tmpl.Execute(c.Response().Writer, nil)
+	return c.Render(http.StatusOK, "index.html", nil)
 }
 
-func (a *App) DevicesHandler(c echo.Context) error {
-	tmpl := template.Must(template.ParseFiles("../templates/devices.html"))
-	return tmpl.Execute(c.Response().Writer, nil)
+// FireExtinguisherHandler serves the fire extinguishers page
+func (a *App) FireExtinguisherHandler(c echo.Context) error {
+	return c.Render(http.StatusOK, "fire_extinguishers.html", nil)
 }
 
-func (a *App) GetDevices(c echo.Context) error {
-	devices := []models.Device{}
-	rows, err := a.DB.Query("SELECT id, name, status FROM devices")
+// GetFireExtinguishersHTML returns fire extinguishers data as HTML
+func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
+	fireExtinguishers := []models.FireExtinguisher{}
+	rows, err := a.DB.Query("SELECT * FROM fire_extinguishers")
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
+		return c.String(http.StatusInternalServerError, "Error fetching data")
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var device models.Device
-		if err := rows.Scan(&device.ID, &device.Name, &device.Status); err != nil {
-			return c.JSON(http.StatusInternalServerError, err)
+		var fireExtinguisher models.FireExtinguisher
+		if err := rows.Scan(
+			&fireExtinguisher.FireExtinguisherID,
+			&fireExtinguisher.SafetyDeviceID,
+			&fireExtinguisher.FireExtinguisherTypeID,
+			&fireExtinguisher.SerialNumber,
+			&fireExtinguisher.DateOfManufacture,
+			&fireExtinguisher.ExpireDate,
+			&fireExtinguisher.Size,
+			&fireExtinguisher.Misc,
+			&fireExtinguisher.Status); err != nil {
+			return c.String(http.StatusInternalServerError, "Error scanning data")
 		}
-		devices = append(devices, device)
+		fireExtinguishers = append(fireExtinguishers, fireExtinguisher)
 	}
-	return c.JSON(http.StatusOK, devices)
+
+	return c.Render(http.StatusOK, "fire_extinguishers_table.html", map[string]interface{}{
+		"FireExtinguishers": fireExtinguishers,
+	})
 }
