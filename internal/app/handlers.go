@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 	"github.com/labstack/echo/v4"
@@ -14,37 +16,100 @@ func (a *App) HomeHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
 
-// FireExtinguisherHandler serves the fire extinguishers page
 func (a *App) FireExtinguisherHandler(c echo.Context) error {
-	return c.Render(http.StatusOK, "fire_extinguishers.html", nil)
+	pageStr := c.QueryParam("page")
+	sizeStr := c.QueryParam("size")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 {
+		size = 10
+	}
+
+	// Fetch total count of fire extinguishers for pagination
+	var total int
+	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error fetching count")
+	}
+
+	// Render the root template with pagination data
+	return c.Render(http.StatusOK, "fire_extinguishers.html", map[string]interface{}{
+		"Page":  page,
+		"Size":  size,
+		"Total": total,
+	})
 }
 
 func (a *App) CreateFireExtinguisher(c echo.Context) error {
 	// Parse form data
-	room := c.FormValue("room")
-	fireExtinguisherTypeID := c.FormValue("fire_extinguisher_type_id")
+	roomStr := c.FormValue("room")
+	fireExtinguisherTypeIDStr := c.FormValue("fire_extinguisher_type_id")
 	serialNumber := c.FormValue("serial_number")
-	dateOfManufacture := c.FormValue("date_of_manufacture")
-	expireDate := c.FormValue("expire_date")
+	dateOfManufactureStr := c.FormValue("date_of_manufacture")
+	expireDateStr := c.FormValue("expire_date")
 	size := c.FormValue("size")
 	misc := c.FormValue("misc")
 	status := c.FormValue("status")
 
 	// Validate input
-	if room == "" || fireExtinguisherTypeID == "" || serialNumber == "" ||
-		dateOfManufacture == "" || expireDate == "" || size == "" || status == "" {
+	if roomStr == "" || fireExtinguisherTypeIDStr == "" || serialNumber == "" ||
+		dateOfManufactureStr == "" || expireDateStr == "" || size == "" || status == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{"error": "All fields are required"})
+	}
+
+	// Convert room ID to integer
+	roomID, err := strconv.Atoi(roomStr)
+	if err != nil {
+		log.Printf("Error converting room to integer: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid room ID"})
+	}
+
+	// Convert fire extinguisher type ID to integer
+	fireExtinguisherTypeID, err := strconv.Atoi(fireExtinguisherTypeIDStr)
+	if err != nil {
+		log.Printf("Error converting fireExtinguisherTypeID to integer: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid fire extinguisher type ID"})
+	}
+
+	// Convert date strings to time.Time using yyyy-mm-dd format
+	dateOfManufacture, err := time.Parse("2006-01-02", dateOfManufactureStr)
+	if err != nil {
+		log.Printf("Error parsing date of manufacture: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid date of manufacture format"})
+	}
+
+	expireDate, err := time.Parse("2006-01-02", expireDateStr)
+	if err != nil {
+		log.Printf("Error parsing expire date: %v", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid expire date format"})
 	}
 
 	// Insert new safety device
 	var safetyDeviceID int
-	err := a.DB.QueryRow(`
+	err = a.DB.QueryRow(`
         INSERT INTO safety_devices (safety_device_type, room_id)
         VALUES ($1, $2) RETURNING safety_device_id`,
-		"Fire Extinguisher", room).Scan(&safetyDeviceID)
+		"Fire Extinguisher", roomID).Scan(&safetyDeviceID)
 	if err != nil {
 		log.Println("Error inserting safety device:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating safety device"})
+	}
+
+	// Create new FireExtinguisher instance
+	newFireExtinguisher := models.FireExtinguisher{
+		SafetyDeviceID:         safetyDeviceID,
+		FireExtinguisherTypeID: fireExtinguisherTypeID,
+		SerialNumber:           serialNumber,
+		DateOfManufacture:      dateOfManufacture,
+		ExpireDate:             expireDate,
+		Size:                   size,
+		Misc:                   misc,
+		Status:                 status,
 	}
 
 	// Insert new fire extinguisher
@@ -62,33 +127,15 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8
         ) RETURNING fire_extinguisher_id
-    `, safetyDeviceID, fireExtinguisherTypeID, serialNumber, dateOfManufacture, expireDate, size, misc, status).
+    `, newFireExtinguisher.SafetyDeviceID, newFireExtinguisher.FireExtinguisherTypeID, newFireExtinguisher.SerialNumber, newFireExtinguisher.DateOfManufacture, newFireExtinguisher.ExpireDate, newFireExtinguisher.Size, newFireExtinguisher.Misc, newFireExtinguisher.Status).
 		Scan(&fireExtinguisherID)
 	if err != nil {
 		log.Println("Error inserting fire extinguisher:", err)
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating fire extinguisher"})
 	}
 
-	// Fetch the newly created fire extinguisher details
-	var newFireExtinguisher models.FireExtinguisher
-	err = a.DB.QueryRow(`
-        SELECT safety_device_id, fire_extinguisher_type_id, serial_number, date_of_manufacture, expire_date, size, misc, status
-        FROM fire_extinguishers
-        WHERE fire_extinguisher_id = $1`,
-		fireExtinguisherID).Scan(
-		&newFireExtinguisher.SafetyDeviceID,
-		&newFireExtinguisher.FireExtinguisherTypeID,
-		&newFireExtinguisher.SerialNumber,
-		&newFireExtinguisher.DateOfManufacture,
-		&newFireExtinguisher.ExpireDate,
-		&newFireExtinguisher.Size,
-		&newFireExtinguisher.Misc,
-		&newFireExtinguisher.Status,
-	)
-	if err != nil {
-		log.Println("Error fetching newly created fire extinguisher:", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error fetching new fire extinguisher"})
-	}
+	// Update the model with the new ID
+	newFireExtinguisher.FireExtinguisherID = fireExtinguisherID
 
 	// Build HTML for the new row
 	newRowHTML := fmt.Sprintf(`
@@ -107,8 +154,8 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
 		newFireExtinguisher.SafetyDeviceID,
 		newFireExtinguisher.FireExtinguisherTypeID,
 		newFireExtinguisher.SerialNumber,
-		newFireExtinguisher.DateOfManufacture,
-		newFireExtinguisher.ExpireDate,
+		newFireExtinguisher.DateOfManufacture.Format("02-01-2006"),
+		newFireExtinguisher.ExpireDate.Format("02-01-2006"),
 		newFireExtinguisher.Size,
 		newFireExtinguisher.Misc,
 		newFireExtinguisher.Status,
@@ -122,8 +169,26 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
 
 // GetFireExtinguishersHTML returns fire extinguishers data as HTML
 func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
+	pageStr := c.QueryParam("page")
+	sizeStr := c.QueryParam("size")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
+	}
+
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 {
+		size = 10
+	}
+
+	offset := (page - 1) * size
+
 	fireExtinguishers := []models.FireExtinguisher{}
-	rows, err := a.DB.Query("SELECT * FROM fire_extinguishers")
+	rows, err := a.DB.Query(`
+        SELECT fire_extinguisher_id, safety_device_id, fire_extinguisher_type_id, serial_number, date_of_manufacture, expire_date, size, misc, status 
+        FROM fire_extinguishers 
+        LIMIT $1 OFFSET $2`, size, offset)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error fetching data")
 	}
@@ -144,6 +209,13 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 			return c.String(http.StatusInternalServerError, "Error scanning data")
 		}
 		fireExtinguishers = append(fireExtinguishers, fireExtinguisher)
+	}
+
+	// Fetch total count of fire extinguishers for pagination
+	var total int
+	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error fetching count")
 	}
 
 	return c.Render(http.StatusOK, "fire_extinguishers_table.html", map[string]interface{}{
