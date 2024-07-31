@@ -3,8 +3,9 @@ package app
 func (a *App) initRoutes() {
 	// Web routes
 	a.Router.GET("/", a.HomeHandler)
-	a.Router.GET("/devices", a.DevicesHandler)
+	// Routes
+	a.Router.GET("/fire-extinguishers", a.FireExtinguisherHandler)
 
 	// API routes
-	a.Router.GET("/api/devices", a.GetDevices)
+	a.Router.GET("/api/fire-extinguishers-html", a.GetFireExtinguishersHTML)
 }

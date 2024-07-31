@@ -3,18 +3,24 @@ package app
 import (
 	"github.com/AlexGithub777/safety-device-app/internal/config"
 	"github.com/AlexGithub777/safety-device-app/internal/database"
+	"github.com/AlexGithub777/safety-device-app/internal/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
+// App holds the application state including database and router
 type App struct {
 	DB     *database.DB
 	Router *echo.Echo
 }
 
+// NewApp creates a new instance of App
 func NewApp(cfg config.Config) *App {
 	// Initialize Echo
 	router := echo.New()
+
+	// Set up renderer
+	router.Renderer = utils.NewTemplateRenderer()
 
 	// Middleware
 	router.Use(middleware.Logger())  // Log requests
