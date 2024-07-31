@@ -70,13 +70,39 @@
                 <th>Status</th>
             </tr>
         </thead>
-        <tbody id="fire-extinguishers-body" 
-            hx-get="/api/fire-extinguishers-html" 
+        <!-- fire-extinguishers/data default page: 1, size 10 -->
+        <tbody id="fire-extinguishers-body"
+            hx-get="/fire-extinguishers/data" 
             hx-trigger="load"
             hx-swap="innerHTML">
             <!-- Rows will be dynamically loaded here -->
         </tbody>
     </table>
+
+    <!-- Update the pagination controls -->
+    <div id="pagination-controls"
+         hx-get="/fire-extinguishers/pagination" 
+         hx-trigger="load, fire-extinguishers-updated from:body"
+         hx-swap="innerHTML">
+        <!-- Pagination controls will be loaded here -->
+    </div>
+
+    <div id="pagination-controls">
+        {{if gt .Page 1}}
+            <!-- Previous button -->
+            <a href="?page={{sub .Page 1}}&size={{.Size}}" hx-get="/fire-extinguishers/data?page={{sub .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Previous</a>
+        {{end}}
+    
+        <!-- Page number display -->
+        <span>Page {{.Page}} of </span>
+    
+        
+            <a href="?page={{add .Page 1}}&size={{.Size}}" hx-get="/fire-extinguishers/data?page={{add .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Next</a>
+        
+    </div>
+    
+    
+    
 
     <!-- The Modal -->
     <div id="fire-extinguisher-modal" class="modal">
@@ -175,15 +201,13 @@
                     // Close the modal
                     modal.style.display = "none";
                     
-                    // Refresh the table
-                    htmx.ajax('GET', '/api/fire-extinguishers-html', {
-                        target: '#fire-extinguishers-body',
-                        swap: 'innerHTML'
-                    });
-                    
-
+                    // Insert the new row into the table
+                    if (result.rowHTML) {
+                        document.getElementById('fire-extinguishers-body').insertAdjacentHTML('beforeend', result.rowHTML);
+                    }
                     
                 }
+
             } catch (error) {
                 console.error("Error submitting form:", error);
                 Toastify({
