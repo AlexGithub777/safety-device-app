@@ -79,26 +79,16 @@
         </tbody>
     </table>
 
-    <!-- Update the pagination controls -->
-    <div id="pagination-controls"
-         hx-get="/fire-extinguishers/pagination" 
-         hx-trigger="load, fire-extinguishers-updated from:body"
-         hx-swap="innerHTML">
-        <!-- Pagination controls will be loaded here -->
-    </div>
-
     <div id="pagination-controls">
         {{if gt .Page 1}}
-            <!-- Previous button -->
-            <a href="?page={{sub .Page 1}}&size={{.Size}}" hx-get="/fire-extinguishers/data?page={{sub .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Previous</a>
+            <a href="#" hx-get="/fire-extinguishers/data?page={{sub .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Previous</a>
         {{end}}
     
-        <!-- Page number display -->
-        <span>Page {{.Page}} of </span>
+        <span>Page {{.Page}} of {{.TotalPages}}</span>
     
-        
-            <a href="?page={{add .Page 1}}&size={{.Size}}" hx-get="/fire-extinguishers/data?page={{add .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Next</a>
-        
+        {{if lt .Page .TotalPages}}
+            <a href="#" hx-get="/fire-extinguishers/data?page={{add .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Next</a>
+        {{end}}
     </div>
     
     

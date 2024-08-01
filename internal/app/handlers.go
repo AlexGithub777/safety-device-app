@@ -3,6 +3,7 @@ package app
 import (
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -25,7 +26,6 @@ func (a *App) FireExtinguisherHandler(c echo.Context) error {
 		page = 1
 	}
 
-	sizeStr := c.QueryParam("size")
 	size, err := strconv.Atoi(sizeStr)
 	if err != nil || size <= 0 {
 		size = 10
@@ -38,11 +38,14 @@ func (a *App) FireExtinguisherHandler(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Error fetching count")
 	}
 
+	// Calculate total pages
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+
 	// Render the root template with pagination data
 	return c.Render(http.StatusOK, "fire_extinguishers.html", map[string]interface{}{
-		"Page":  page,
-		"Size":  size,
-		"Total": total,
+		"Page":       page,
+		"Size":       size,
+		"TotalPages": totalPages,
 	})
 }
 
@@ -183,6 +186,16 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 		size = 10
 	}
 
+	// Fetch total count of fire extinguishers for pagination
+	var total int
+	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error fetching count")
+	}
+
+	// Calculate total pages
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+
 	offset := (page - 1) * size
 
 	fireExtinguishers := []models.FireExtinguisher{}
@@ -212,14 +225,19 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 		fireExtinguishers = append(fireExtinguishers, fireExtinguisher)
 	}
 
-	// Fetch total count of fire extinguishers for pagination
-	var total int
-	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error fetching count")
+	data := map[string]interface{}{
+		"FireExtinguishers": fireExtinguishers,
+		"Page":              page,
+		"Size":              size,
+		"TotalPages":        totalPages,
 	}
 
-	return c.Render(http.StatusOK, "fire_extinguishers_table.html", map[string]interface{}{
-		"FireExtinguishers": fireExtinguishers,
-	})
+	// Check if this is an htmx request
+	if c.Request().Header.Get("HX-Request") != "" {
+		// Render only the table rows and pagination controls
+		return c.Render(http.StatusOK, "fire_extinguishers_table.html", data)
+	}
+
+	// Render the root template with pagination data and fire extinguishers data
+	return c.Render(http.StatusOK, "fire_extinguishers.html", data)
 }
