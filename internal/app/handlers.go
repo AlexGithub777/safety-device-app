@@ -171,7 +171,6 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
 	})
 }
 
-// GetFireExtinguishersHTML returns fire extinguishers data as HTML
 func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 	pageStr := c.QueryParam("page")
 	sizeStr := c.QueryParam("size")
@@ -192,9 +191,6 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Error fetching count")
 	}
-
-	// Calculate total pages
-	totalPages := int(math.Ceil(float64(total) / float64(size)))
 
 	offset := (page - 1) * size
 
@@ -227,17 +223,39 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 
 	data := map[string]interface{}{
 		"FireExtinguishers": fireExtinguishers,
-		"Page":              page,
-		"Size":              size,
-		"TotalPages":        totalPages,
 	}
 
-	// Check if this is an htmx request
-	if c.Request().Header.Get("HX-Request") != "" {
-		// Render only the table rows and pagination controls
-		return c.Render(http.StatusOK, "fire_extinguishers_table.html", data)
+	return c.Render(http.StatusOK, "fire_extinguishers_table.html", data)
+}
+
+func (a *App) GetPaginationControls(c echo.Context) error {
+	pageStr := c.QueryParam("page")
+	sizeStr := c.QueryParam("size")
+
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1
 	}
 
-	// Render the root template with pagination data and fire extinguishers data
-	return c.Render(http.StatusOK, "fire_extinguishers.html", data)
+	size, err := strconv.Atoi(sizeStr)
+	if err != nil || size <= 0 {
+		size = 10
+	}
+
+	// Fetch total count of fire extinguishers for pagination
+	var total int
+	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Error fetching count")
+	}
+
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+
+	data := map[string]interface{}{
+		"Page":       page,
+		"Size":       size,
+		"TotalPages": totalPages,
+	}
+
+	return c.Render(http.StatusOK, "pagination_controls.html", data)
 }

@@ -1,0 +1,9 @@
+<div id="pagination-controls">
+    <span>Page {{.Page}} of {{.TotalPages}}</span>
+    {{if gt .Page 1}}
+        <a id="previous-page-btn" href="?page={{sub .Page 1}}&size={{.Size}}">Previous</a>
+    {{end}}
+    {{if lt .Page .TotalPages}}
+        <a id="next-page-btn" href="?page={{add .Page 1}}&size={{.Size}}">Next</a>
+    {{end}}
+</div>

@@ -56,6 +56,14 @@
 <body>
     <h1>Fire Extinguishers</h1>
     <button id="add-fire-extinguisher-btn">Add Fire Extinguisher</button>
+
+    <div id="pagination-controls_base" 
+        hx-get="/fire-extinguishers/pagination?page={{.Page}}&size={{.Size}}" 
+        hx-trigger="load" 
+        hx-swap="innerHTML">
+        <!-- Pagination controls will be dynamically loaded here -->
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -70,29 +78,13 @@
                 <th>Status</th>
             </tr>
         </thead>
-        <!-- fire-extinguishers/data default page: 1, size 10 -->
         <tbody id="fire-extinguishers-body"
-            hx-get="/fire-extinguishers/data" 
+            hx-get="/fire-extinguishers/data?page={{.Page}}&size={{.Size}}" 
             hx-trigger="load"
             hx-swap="innerHTML">
             <!-- Rows will be dynamically loaded here -->
         </tbody>
     </table>
-
-    <div id="pagination-controls">
-        {{if gt .Page 1}}
-            <a href="#" hx-get="/fire-extinguishers/data?page={{sub .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Previous</a>
-        {{end}}
-    
-        <span>Page {{.Page}} of {{.TotalPages}}</span>
-    
-        {{if lt .Page .TotalPages}}
-            <a href="#" hx-get="/fire-extinguishers/data?page={{add .Page 1}}&size={{.Size}}" hx-target="#fire-extinguishers-body" hx-swap="innerHTML">Next</a>
-        {{end}}
-    </div>
-    
-    
-    
 
     <!-- The Modal -->
     <div id="fire-extinguisher-modal" class="modal">
@@ -210,7 +202,6 @@
                 }).showToast();
             }
         });
-
     </script>
 </body>
 </html>
