@@ -9,5 +9,6 @@ func (a *App) initRoutes() {
 	// API routes
 	a.Router.GET("/fire-extinguishers/data", a.GetFireExtinguishersHTML)
 	a.Router.POST("/api/fire-extinguishers", a.CreateFireExtinguisher)
+	a.Router.GET("/fire-extinguishers/pagination", a.GetPaginationControls)
 
 }
