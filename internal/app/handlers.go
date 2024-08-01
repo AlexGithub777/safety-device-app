@@ -25,6 +25,7 @@ func (a *App) FireExtinguisherHandler(c echo.Context) error {
 		page = 1
 	}
 
+	sizeStr := c.QueryParam("size")
 	size, err := strconv.Atoi(sizeStr)
 	if err != nil || size <= 0 {
 		size = 10
