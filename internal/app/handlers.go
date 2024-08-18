@@ -17,36 +17,41 @@ func (a *App) HomeHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
 
+// HomeHandler serves the home page
+func (a *App) MapHandler(c echo.Context) error {
+	return c.Render(http.StatusOK, "map.html", nil)
+}
+
 func (a *App) FireExtinguisherHandler(c echo.Context) error {
-	pageStr := c.QueryParam("page")
-	sizeStr := c.QueryParam("size")
+    pageStr := c.QueryParam("page")
+    sizeStr := c.QueryParam("size")
 
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page <= 0 {
-		page = 1
-	}
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
 
-	size, err := strconv.Atoi(sizeStr)
-	if err != nil || size <= 0 {
-		size = 10
-	}
+    size, err := strconv.Atoi(sizeStr)
+    if err != nil || size <= 0 {
+        size = 10
+    }
 
-	// Fetch total count of fire extinguishers for pagination
-	var total int
-	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error fetching count")
-	}
+    // Fetch total count of fire extinguishers for pagination
+    var total int
+    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
+    }
 
-	// Calculate total pages
-	totalPages := int(math.Ceil(float64(total) / float64(size)))
+    // Calculate total pages
+    totalPages := int(math.Ceil(float64(total) / float64(size)))
 
-	// Render the root template with pagination data
-	return c.Render(http.StatusOK, "fire_extinguishers.html", map[string]interface{}{
-		"Page":       page,
-		"Size":       size,
-		"TotalPages": totalPages,
-	})
+    // Render the root template with pagination data
+    return c.Render(http.StatusOK, "fire_extinguishers.html", map[string]interface{}{
+        "Page":       page,
+        "Size":       size,
+        "TotalPages": totalPages,
+    })
 }
 
 func (a *App) CreateFireExtinguisher(c echo.Context) error {
@@ -63,34 +68,33 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
 	// Validate input
 	if roomStr == "" || fireExtinguisherTypeIDStr == "" || serialNumber == "" ||
 		dateOfManufactureStr == "" || expireDateStr == "" || size == "" || status == "" {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "All fields are required"})
+		return a.handleError(c, http.StatusBadRequest, "All fields are required", nil)
 	}
 
 	// Convert room ID to integer
 	roomID, err := strconv.Atoi(roomStr)
 	if err != nil {
 		log.Printf("Error converting room to integer: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid room ID"})
+		return a.handleError(c, http.StatusBadRequest, "All fields are required", nil)
 	}
 
 	// Convert fire extinguisher type ID to integer
 	fireExtinguisherTypeID, err := strconv.Atoi(fireExtinguisherTypeIDStr)
 	if err != nil {
 		log.Printf("Error converting fireExtinguisherTypeID to integer: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid fire extinguisher type ID"})
+		return a.handleError(c, http.StatusBadRequest, "Invalid fire extinguisher type ID", err)
 	}
 
 	// Convert date strings to time.Time using yyyy-mm-dd format
 	dateOfManufacture, err := time.Parse("2006-01-02", dateOfManufactureStr)
 	if err != nil {
 		log.Printf("Error parsing date of manufacture: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid date of manufacture format"})
+		return a.handleError(c, http.StatusBadRequest, "Invalid date of manufacture format", err)
 	}
 
 	expireDate, err := time.Parse("2006-01-02", expireDateStr)
 	if err != nil {
-		log.Printf("Error parsing expire date: %v", err)
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid expire date format"})
+		return a.handleError(c, http.StatusBadRequest, "Invalid expire date format", err)
 	}
 
 	// Insert new safety device
@@ -100,8 +104,8 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
         VALUES ($1, $2) RETURNING safety_device_id`,
 		"Fire Extinguisher", roomID).Scan(&safetyDeviceID)
 	if err != nil {
-		log.Println("Error inserting safety device:", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating safety device"})
+		
+		return a.handleError(c, http.StatusInternalServerError, "Error creating safety device", err)
 	}
 
 	// Create new FireExtinguisher instance
@@ -134,8 +138,8 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
     `, newFireExtinguisher.SafetyDeviceID, newFireExtinguisher.FireExtinguisherTypeID, newFireExtinguisher.SerialNumber, newFireExtinguisher.DateOfManufacture, newFireExtinguisher.ExpireDate, newFireExtinguisher.Size, newFireExtinguisher.Misc, newFireExtinguisher.Status).
 		Scan(&fireExtinguisherID)
 	if err != nil {
-		log.Println("Error inserting fire extinguisher:", err)
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error creating fire extinguisher"})
+		
+		return a.handleError(c, http.StatusInternalServerError, "Error creating fire extinguisher", err)
 	}
 
 	// Update the model with the new ID
@@ -229,33 +233,104 @@ func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
 }
 
 func (a *App) GetPaginationControls(c echo.Context) error {
-	pageStr := c.QueryParam("page")
-	sizeStr := c.QueryParam("size")
+    pageStr := c.QueryParam("page")
+    sizeStr := c.QueryParam("size")
 
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page <= 0 {
-		page = 1
-	}
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
 
-	size, err := strconv.Atoi(sizeStr)
-	if err != nil || size <= 0 {
-		size = 10
-	}
+    size, err := strconv.Atoi(sizeStr)
+    if err != nil || size <= 0 {
+        size = 10
+    }
 
-	// Fetch total count of fire extinguishers for pagination
-	var total int
-	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error fetching count")
-	}
+    // Fetch total count of fire extinguishers for pagination
+    var total int
+    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
+    }
 
-	totalPages := int(math.Ceil(float64(total) / float64(size)))
+    totalPages := int(math.Ceil(float64(total) / float64(size)))
 
-	data := map[string]interface{}{
-		"Page":       page,
-		"Size":       size,
-		"TotalPages": totalPages,
-	}
+    data := map[string]interface{}{
+        "Page":       page,
+        "Size":       size,
+        "TotalPages": totalPages,
+    }
 
-	return c.Render(http.StatusOK, "pagination_controls.html", data)
+    return c.Render(http.StatusOK, "pagination_controls.html", data)
 }
+
+func (a *App) SingleFireExtinguisherHandler(c echo.Context) error {
+    idStr := c.Param("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        return a.handleError(c, http.StatusBadRequest, "Invalid ID", err)
+    }
+
+    // Assuming you have a method GetFireExtinguisher that fetches a fire extinguisher by ID
+    fireExtinguisher, err := a.GetFireExtinguisher(id)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error fetching fire extinguisher", err)
+    }
+
+    return c.Render(http.StatusOK, "fire_extinguisher.html", fireExtinguisher)
+}
+
+// GetFireExtinguisher fetches a fire extinguisher by its ID
+func (a *App) GetFireExtinguisher(id int) (*models.FireExtinguisher, error) {
+    var fireExtinguisher models.FireExtinguisher
+
+    err := a.DB.QueryRow("SELECT * FROM fire_extinguishers WHERE fire_extinguisher_id = $1", id).Scan(
+        &fireExtinguisher.FireExtinguisherID,
+        &fireExtinguisher.SafetyDeviceID,
+        &fireExtinguisher.FireExtinguisherTypeID,
+        &fireExtinguisher.SerialNumber,
+        &fireExtinguisher.DateOfManufacture,
+        &fireExtinguisher.ExpireDate,
+        &fireExtinguisher.Size,
+        &fireExtinguisher.Misc,
+        &fireExtinguisher.Status,
+    )
+
+    if err != nil {
+        return nil, err
+    }
+
+    return &fireExtinguisher, nil
+}
+
+func (a *App) SingleBuildingHandler(c echo.Context) error {
+    idStr := c.Param("id")
+    id, err := strconv.Atoi(idStr)
+    if err != nil {
+        return a.handleError(c, http.StatusBadRequest, "Invalid ID", err)
+    }
+
+
+    building, err := a.GetBuilding(id)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error fetching fire extinguisher", err)
+    }
+
+    return c.Render(http.StatusOK, "building_name.html", building)
+}
+
+// GetBuilding fetches a building by its ID
+func (a *App) GetBuilding(id int) (*models.Building, error) {
+    var building models.Building
+
+    err := a.DB.QueryRow("SELECT name FROM buildings WHERE building_id = $1", id).Scan(
+        &building.Name,
+    )
+
+    if err != nil {
+        return nil, err
+    }
+
+    return &building, nil
+}
+
