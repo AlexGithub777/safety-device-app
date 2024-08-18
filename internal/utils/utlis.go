@@ -6,6 +6,8 @@ import (
 	"log"
 	"math"
 	"net"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -18,10 +20,13 @@ type TemplateRenderer struct {
 
 // NewTemplateRenderer creates a new TemplateRenderer
 func NewTemplateRenderer() *TemplateRenderer {
-	funcMap := FuncMap()
-	t := template.Must(template.New("").Funcs(funcMap).ParseGlob("templates/*.html"))
-	return &TemplateRenderer{templates: t}
+    funcMap := FuncMap()
+    rootDir, _ := os.Getwd()
+    templateDir := filepath.Join(rootDir, "templates", "*.html")
+    t := template.Must(template.New("").Funcs(funcMap).ParseGlob(templateDir))
+    return &TemplateRenderer{templates: t}
 }
+
 
 // Render implements echo.Renderer
 func (tr *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
