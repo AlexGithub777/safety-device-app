@@ -68,7 +68,7 @@
     </style>
   </head>
   <body>
-    <h1>Fire Extinguishers</h1>
+    <h1>Fire Extinguishers balls</h1>
     <button id="add-fire-extinguisher-btn">Add Fire Extinguisher</button>
 
     <div
@@ -149,6 +149,15 @@
       </div>
     </div>
 
+    <script>
+      // hot reload
+      if (window.EventSource) {
+        new EventSource("http://localhost:8090/internal/reload").onmessage =
+          () => {
+            location.reload();
+          };
+      }
+    </script>
     <script>
       // Get the modal
       var modal = document.getElementById("fire-extinguisher-modal");

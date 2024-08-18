@@ -43,6 +43,10 @@ func NewApp(cfg config.Config) *App {
         panic(err)
     }
 
+    //database.SeedData(db.DB) // Seed data
+
+    
+
     // Initialize Logger
     logger := log.New(os.Stdout, "APP: ", log.LstdFlags)
 

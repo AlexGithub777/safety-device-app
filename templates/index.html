@@ -20,4 +20,15 @@
     </nav>
     <div></div>
   </body>
+  <script>
+    // hot reaload
+    if (window.EventSource) {
+      new EventSource("http://localhost:8090/internal/reload").onmessage =
+        () => {
+          setTimeout(() => {
+            location.reload();
+          });
+        };
+    }
+  </script>
 </html>
