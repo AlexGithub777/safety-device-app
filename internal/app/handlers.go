@@ -23,6 +23,79 @@ func (a *App) HandleDashboard(c echo.Context) error {
 	return c.Render(http.StatusOK, "fire_extinguishers.html", nil)
 }
 
+
+// GetAllDevices fetches all emergency devices from the database with optional filtering by building code
+func (a *App) GetAllDevices(c echo.Context) error {
+    buildingCode := c.QueryParam("building_code")
+    var query string
+    var args []interface{}
+
+    // Define the base query
+    query = `
+        SELECT 
+            ed.emergencydeviceid, 
+            edt.emergencydevicetypename, 
+            r.name AS roomcode,
+            ed.serialnumber,
+            ed.manufacturedate,
+            ed.lastinspectiondate,
+            ed.description,
+            ed.size,
+            ed.status 
+        FROM emergency_deviceT ed
+        JOIN roomT r ON ed.roomid = r.roomid
+		JOIN emergency_device_typeT edt ON ed.emergencydevicetypeid = edt.emergencydevicetypeid
+    `
+
+    // Add filtering by building code if provided
+    if buildingCode != "" {
+        query += `
+            JOIN buildingT b ON r.buildingid = b.buildingid
+            WHERE b.buildingcode = $1
+        `
+        args = append(args, buildingCode)
+    }
+
+    // Prepare and execute the query
+    rows, err := a.DB.Query(query, args...)
+    if err != nil {
+        return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Error fetching data: %v", err))
+    }
+    defer rows.Close()
+
+    // Define the result slice
+	emergencyDevices := []struct {
+		models.EmergencyDevice
+		EmergencyDeviceTypeName string `json:"emergency_device_type_name"`
+		RoomCode            string `json:"room_code"`
+	}{}
+
+	// Scan the results
+	for rows.Next() {
+		var emergencyDevice struct {
+			models.EmergencyDevice
+			EmergencyDeviceTypeName string `json:"emergency_device_type_name"`
+			RoomCode            string `json:"room_code"`
+		}
+		if err := rows.Scan(
+			&emergencyDevice.EmergencyDeviceID,
+			&emergencyDevice.EmergencyDeviceTypeName, // Scan into the new field
+			&emergencyDevice.RoomCode,
+			&emergencyDevice.SerialNumber,
+			&emergencyDevice.ManufactureDate,
+			&emergencyDevice.LastInspectionDate,
+			&emergencyDevice.Size,
+			&emergencyDevice.Status,
+		); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Error scanning data: %v", err))
+		}
+		emergencyDevices = append(emergencyDevices, emergencyDevice)
+	}
+
+    // Return the results as JSON
+    return c.JSON(http.StatusOK, emergencyDevices)
+}
+
 func (a *App) HandleAddDevice(c echo.Context) error {
     // Parse form data
     roomStr := c.FormValue("room")
@@ -140,131 +213,5 @@ func (a *App) HandleAddDevice(c echo.Context) error {
         "message": "Emergency device created successfully.",
         "rowHTML": newRowHTML,
     })
-}
-
-func (a *App) GetAllDevices(c echo.Context) error {
-    buildingCode := c.QueryParam("building_code")
-    var query string
-    var args []interface{}
-
-    // Define the base query
-    query = `
-        SELECT 
-            ed.emergencydeviceid, 
-            ed.emergencydevicetypeid, 
-            r.name AS roomcode,
-            ed.serialnumber,
-            ed.manufacturedate,
-            ed.lastinspectiondate,
-            ed.description,
-            ed.size,
-            ed.status 
-        FROM emergency_deviceT ed
-        JOIN roomT r ON ed.roomid = r.roomid
-    `
-
-    // Add filtering by building code if provided
-    if buildingCode != "" {
-        query += `
-            JOIN buildingT b ON r.buildingid = b.buildingid
-            WHERE b.buildingcode = $1
-        `
-        args = append(args, buildingCode)
-    }
-
-    // Prepare and execute the query
-    rows, err := a.DB.Query(query, args...)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error fetching data"})
-    }
-    defer rows.Close()
-
-    // Define the result slice
-    emergencyDevices := []struct {
-        models.EmergencyDevice
-        RoomCode string `json:"room_code"`
-    }{}
-
-    // Scan the results
-    for rows.Next() {
-        var emergencyDevice struct {
-            models.EmergencyDevice
-            RoomCode string `json:"room_code"`
-        }
-        if err := rows.Scan(
-            &emergencyDevice.EmergencyDeviceID,
-            &emergencyDevice.EmergencyDeviceTypeID,
-            &emergencyDevice.RoomCode,
-            &emergencyDevice.SerialNumber,
-            &emergencyDevice.ManufactureDate,
-            &emergencyDevice.LastInspectionDate,
-            &emergencyDevice.Description,
-            &emergencyDevice.Size,
-            &emergencyDevice.Status,
-        ); err != nil {
-            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error scanning data"})
-        }
-        emergencyDevices = append(emergencyDevices, emergencyDevice)
-    }
-
-    // Return the results as JSON
-    return c.JSON(http.StatusOK, emergencyDevices)
-}
-
-func (a *App) GetDevicesByBuildingCode(c echo.Context) error {
-    buildingCode := c.Param("building_code")
-
-    // Define a struct to hold the query results with embedded EmergencyDevice
-    emergencyDevices := []struct {
-        models.EmergencyDevice
-        RoomCode string `json:"room_code"`
-    }{}
-
-    // Execute the query to fetch devices by building code
-    rows, err := a.DB.Query(`
-        SELECT 
-            ed.emergency_device_id, 
-            ed.emergency_device_type_id, 
-            r.code AS room_code,
-            ed.serial_number,
-            ed.manufacture_date,
-            ed.last_inspection_date,
-            ed.description,
-            ed.size,
-            ed.status
-        FROM emergency_devices ed
-        JOIN rooms r ON ed.room_id = r.room_id
-        JOIN buildings b ON r.building_id = b.building_id
-        WHERE b.code = $1`, buildingCode)
-    if err != nil {
-        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error fetching data"})
-    }
-    defer rows.Close()
-
-    // Iterate through rows and scan data into the struct
-    for rows.Next() {
-        var device struct {
-            models.EmergencyDevice
-            RoomCode string `json:"room_code"`
-        }
-        if err := rows.Scan(
-            &device.EmergencyDevice.EmergencyDeviceID,
-            &device.EmergencyDevice.EmergencyDeviceTypeID,
-            &device.EmergencyDevice.RoomID,
-            &device.EmergencyDevice.SerialNumber,
-            &device.EmergencyDevice.ManufactureDate,
-            &device.EmergencyDevice.LastInspectionDate,
-            &device.EmergencyDevice.Description,
-            &device.EmergencyDevice.Size,
-            &device.EmergencyDevice.Status,
-            &device.RoomCode,
-        ); err != nil {
-            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error scanning data"})
-        }
-        emergencyDevices = append(emergencyDevices, device)
-    }
-
-    // Return the result as JSON
-    return c.JSON(http.StatusOK, emergencyDevices)
 }
 
