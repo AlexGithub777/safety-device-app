@@ -169,7 +169,7 @@
                 minZoom: -1,
             });
 
-            var imageUrl = "/static/map_3.svg";
+            var imageUrl = "/static/map.svg";
 
             // Apply these values to the bounds
             const bounds = [
@@ -223,29 +223,46 @@
                     );
                     tbody.innerHTML = devices
                         .map((device) => {
-                            // Calculate next inspection date and expiry date
                             let nextInspectionDate = "N/A";
-                            if (device.last_inspection_date) {
+                            let lastInspectionDateDisplay = "N/A";
+                            if (
+                                device.last_inspection_date &&
+                                device.last_inspection_date.Valid
+                            ) {
                                 const lastInspectionDate = new Date(
-                                    device.last_inspection_date
+                                    device.last_inspection_date.Time
+                                );
+                                lastInspectionDateDisplay = lastInspectionDate
+                                    .toISOString()
+                                    .split("T")[0];
+                                let tempDate = new Date(
+                                    lastInspectionDate.getTime()
                                 );
                                 nextInspectionDate = new Date(
-                                    lastInspectionDate.setMonth(
-                                        lastInspectionDate.getMonth() + 3
-                                    )
+                                    tempDate.setMonth(tempDate.getMonth() + 3)
                                 );
                                 nextInspectionDate = nextInspectionDate
                                     .toISOString()
                                     .split("T")[0];
                             }
 
-                            const manufactureDate = new Date(
-                                device.manufacture_date
-                            );
-                            const expiryDate = new Date(manufactureDate);
-                            expiryDate.setFullYear(
-                                manufactureDate.getFullYear() + 5
-                            );
+                            let manufactureDate = "N/A";
+                            let expiryDate = "N/A";
+                            if (device.manufacture_date) {
+                                manufactureDate = new Date(
+                                    device.manufacture_date
+                                );
+                                expiryDate = new Date(manufactureDate);
+                                expiryDate.setFullYear(
+                                    manufactureDate.getFullYear() + 5
+                                );
+                                manufactureDate = manufactureDate
+                                    .toISOString()
+                                    .split("T")[0];
+                                expiryDate = expiryDate
+                                    .toISOString()
+                                    .split("T")[0];
+                            }
 
                             let badgeClass = "text-bg-warning";
                             if (device.status === "Active") {
@@ -255,53 +272,43 @@
                             }
 
                             return `
-                    <tr>
-                        <td>${device.emergency_device_type_name}</td>
-                        <td>${device.extinguisher_type}</td>
-                        <td>${device.room}</td>
-                        <td>${device.serial_number}</td>
-                        <td>${manufactureDate.toISOString().split("T")[0]}</td>
-                        <td>${expiryDate.toISOString().split("T")[0]}</td>
-                        <td>${nextInspectionDate}</td>
-                        <td>${
-                            device.last_inspection_date
-                                ? new Date(device.last_inspection_date)
-                                      .toISOString()
-                                      .split("T")[0]
-                                : "N/A"
-                        }</td>
-                        <td>${device.size}</td>
-                        <td><span class="badge ${badgeClass}">${
-                                device.status
+                <tr>
+                    <td>${device.emergency_device_type_name}</td>
+                    <td>${device.extinguisher_type}</td>
+                    <td>${device.room_name}</td>
+                    <td>${device.serial_number}</td>
+                    <td>${manufactureDate}</td>
+                    <td>${expiryDate}</td>
+                    <td>${lastInspectionDateDisplay}</td>
+                    <td>${nextInspectionDate}</td>
+                    <td>${device.size}</td>
+                    <td><span class="badge ${badgeClass}">${
+                                device.status || "N/A"
                             }</span></td>
-                            <td>
-                                <div class="d-flex justify-content-around align-items-center gap-2">
-                                    <button class="btn btn-secondary" onclick="inspectDevice(${
-                                        device.emergency_device_id
-                                    })">
-                                        Inspect
-                                    </button>
-
-                                    <button class="btn btn-primary" onclick="DeviceNotes('${
-                                        device.description
-                                    }')">Notes
-                                    </button>
-
-                                    <button class="btn btn-warning" onclick="editDevice(${
-                                        device.emergency_device_id
-                                    })">
-                                        Edit
-                                    </button>
-
-                                    <button class="btn btn-danger" onclick="deleteDevice(${
-                                        device.emergency_device_id
-                                    })">
-                                        Delete
-                                    </button>
-                                </div>
-                            </td>
-                    </tr>
-                `;
+                    <td>
+                        <div class="d-flex justify-content-around align-items-center gap-2">
+                            <button class="btn btn-secondary" onclick="inspectDevice(${
+                                device.emergency_device_id
+                            })">
+                                Inspect
+                            </button>
+                            <button class="btn btn-primary" onclick="DeviceNotes('${
+                                device.description || ""
+                            }')">Notes</button>
+                            <button class="btn btn-warning" onclick="editDevice(${
+                                device.emergency_device_id
+                            })">
+                                Edit
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteDevice(${
+                                device.emergency_device_id
+                            })">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
                         })
                         .join("");
                 } catch (err) {
