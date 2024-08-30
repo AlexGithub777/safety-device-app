@@ -208,107 +208,85 @@
             map.fitBounds(bounds);
 
             async function fetchDevices(buildingCode = "") {
-                console.log("Fetching devices for building:", buildingCode);
                 try {
                     const url = buildingCode
                         ? `/api/emergency-device?building_code=${buildingCode}`
                         : "/api/emergency-device";
-                    console.log("URL:", url);
                     const response = await fetch(url);
                     const devices = await response.json();
-                    console.log("Devices:", devices);
 
                     const tbody = document.getElementById(
                         "emergency-device-body"
                     );
                     tbody.innerHTML = devices
                         .map((device) => {
-                            let nextInspectionDate = "N/A";
-                            let lastInspectionDateDisplay = "N/A";
-                            if (
-                                device.last_inspection_date &&
-                                device.last_inspection_date.Valid
-                            ) {
-                                const lastInspectionDate = new Date(
-                                    device.last_inspection_date.Time
+                            // Helper function to format dates to DD-MM-YYYY or show "N/A"
+                            const formatDate = (dateString) => {
+                                if (
+                                    !dateString ||
+                                    dateString === "0001-01-01T00:00:00Z"
+                                ) {
+                                    return "N/A";
+                                }
+                                const date = new Date(dateString);
+                                const day = String(date.getDate()).padStart(
+                                    2,
+                                    "0"
                                 );
-                                lastInspectionDateDisplay = lastInspectionDate
-                                    .toISOString()
-                                    .split("T")[0];
-                                let tempDate = new Date(
-                                    lastInspectionDate.getTime()
-                                );
-                                nextInspectionDate = new Date(
-                                    tempDate.setMonth(tempDate.getMonth() + 3)
-                                );
-                                nextInspectionDate = nextInspectionDate
-                                    .toISOString()
-                                    .split("T")[0];
-                            }
+                                const month = String(
+                                    date.getMonth() + 1
+                                ).padStart(2, "0");
+                                const year = date.getFullYear();
+                                return `${day}-${month}-${year}`;
+                            };
 
-                            let manufactureDate = "N/A";
-                            let expiryDate = "N/A";
-                            if (device.manufacture_date) {
-                                manufactureDate = new Date(
-                                    device.manufacture_date
-                                );
-                                expiryDate = new Date(manufactureDate);
-                                expiryDate.setFullYear(
-                                    manufactureDate.getFullYear() + 5
-                                );
-                                manufactureDate = manufactureDate
-                                    .toISOString()
-                                    .split("T")[0];
-                                expiryDate = expiryDate
-                                    .toISOString()
-                                    .split("T")[0];
-                            }
+                            // Get the badge class based on the status
+                            const badgeClass =
+                                device.status.String === "Active"
+                                    ? "text-bg-success"
+                                    : device.status.String === "Expired"
+                                    ? "text-bg-danger"
+                                    : "text-bg-warning";
 
-                            let badgeClass = "text-bg-warning";
-                            if (device.status === "Active") {
-                                badgeClass = "text-bg-success";
-                            } else if (device.status === "Expired") {
-                                badgeClass = "text-bg-danger";
-                            }
-
+                            // Return the row with formatted dates
                             return `
-                <tr>
-                    <td>${device.emergency_device_type_name}</td>
-                    <td>${device.extinguisher_type}</td>
-                    <td>${device.room_name}</td>
-                    <td>${device.serial_number}</td>
-                    <td>${manufactureDate}</td>
-                    <td>${expiryDate}</td>
-                    <td>${lastInspectionDateDisplay}</td>
-                    <td>${nextInspectionDate}</td>
-                    <td>${device.size}</td>
-                    <td><span class="badge ${badgeClass}">${
-                                device.status || "N/A"
+                    <tr>
+                        <td>${device.emergency_device_type_name}</td>
+                        <td>${device.extinguisher_type_name.String}</td>
+                        <td>${device.room_name}</td>
+                        <td>${device.serial_number.String}</td>
+                        <td>${formatDate(device.manufacture_date.Time)}</td>
+                        <td>${formatDate(device.expire_date.Time)}</td>
+                        <td>${formatDate(device.last_inspection_date.Time)}</td>
+                        <td>${formatDate(device.next_inspection_date.Time)}</td>
+                        <td>${device.size.String}</td>
+                        <td><span class="badge ${badgeClass}">${
+                                device.status.String
                             }</span></td>
-                    <td>
-                        <div class="d-flex justify-content-around align-items-center gap-2">
-                            <button class="btn btn-secondary" onclick="inspectDevice(${
-                                device.emergency_device_id
-                            })">
-                                Inspect
-                            </button>
-                            <button class="btn btn-primary" onclick="DeviceNotes('${
-                                device.description || ""
-                            }')">Notes</button>
-                            <button class="btn btn-warning" onclick="editDevice(${
-                                device.emergency_device_id
-                            })">
-                                Edit
-                            </button>
-                            <button class="btn btn-danger" onclick="deleteDevice(${
-                                device.emergency_device_id
-                            })">
-                                Delete
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `;
+                        <td>
+                            <div class="d-flex justify-content-around align-items-center gap-2">
+                                <button class="btn btn-secondary" onclick="inspectDevice(${
+                                    device.emergency_device_id
+                                })">
+                                    Inspect
+                                </button>
+                                <button class="btn btn-primary" onclick="DeviceNotes('${
+                                    device.description
+                                }')">Notes</button>
+                                <button class="btn btn-warning" onclick="editDevice(${
+                                    device.emergency_device_id
+                                })">
+                                    Edit
+                                </button>
+                                <button class="btn btn-danger" onclick="deleteDevice(${
+                                    device.emergency_device_id
+                                })">
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                         })
                         .join("");
                 } catch (err) {

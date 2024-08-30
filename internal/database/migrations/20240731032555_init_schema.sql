@@ -28,10 +28,16 @@ CREATE TABLE Emergency_Device_TypeT (
     EmergencyDeviceTypeName VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE Extinguisher_TypeT (
+    ExtinguisherTypeID SERIAL PRIMARY KEY,
+    ExtinguisherTypeName VARCHAR(50) NOT NULL
+);
+
 CREATE TABLE Emergency_DeviceT (
     EmergencyDeviceID SERIAL PRIMARY KEY,
-    EmergencyDeviceTypeID  INT REFERENCES Emergency_Device_TypeT(EmergencyDeviceTypeID),
+    EmergencyDeviceTypeID  INT REFERENCES Emergency_Device_TypeT(EmergencyDeviceTypeID) NOT NULL,
     RoomID INT REFERENCES RoomT(RoomID),
+    ExtinguisherTypeID INT REFERENCES Extinguisher_TypeT(ExtinguisherTypeID) NULL,
     ManufactureDate DATE NOT NULL,
     SerialNumber VARCHAR(100),
     Description VARCHAR(80) NULL,
