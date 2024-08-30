@@ -18,31 +18,7 @@
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
             crossorigin=""
         />
-        <script>
-            function loadSVG() {
-                var svg = "static/map_3.svg";
-                var object = document.createElement("object");
-                object.type = "image/svg+xml";
-                object.data = svg;
-                object.onload = function () {
-                    // Get all path elements with id "p"
-                    const pathElements =
-                        object.contentDocument.querySelectorAll("#p");
-
-                    // Loop over the path elements and add the click event listener to each one
-                    pathElements.forEach(function (pathElement) {
-                        pathElement.addEventListener("click", function () {
-                            alert(
-                                "You clicked on a path element with id: " +
-                                    this.id
-                            );
-                        });
-                    });
-                };
-                document.getElementById("svg2").appendChild(object);
-            }
-            window.onload = loadSVG;
-        </script>
+        <script></script>
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
@@ -135,71 +111,32 @@
         <script></script>
         <div class="fluid-container d-lg-flex">
             <!-- Map -->
-            <!--<div id="map"></div>-->
-
-            <div id="svg2" style=""></div>
+            <div id="map"></div>
 
             <div class="device-list">
                 <h3 class="text-center">Device List</h3>
                 <button id="add-device-btn">Add Device</button>
 
-                <div
-                    class="px-3"
-                    id="pagination-controls_base"
-                    hx-get="/dashboard/pagination?page={{.Page}}&size={{.Size}}"
-                    hx-trigger="load"
-                    hx-swap="innerHTML"
-                >
-                    <!-- Pagination controls will be dynamically loaded here -->
-                </div>
-
                 <table class="mx-3 overflow-x-scroll">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Safety Device ID</th>
                             <th>Type ID</th>
+                            <th>Room Code</th>
                             <th>Serial Number</th>
                             <th>Date of Manufacture</th>
-                            <th>Expire Date</th>
+                            <th>Last Inspection Date</th>
+                            <th>Description</th>
                             <th>Size</th>
-                            <th>Misc</th>
                             <th>Status</th>
                         </tr>
                     </thead>
-                    <tbody
-                        id="safety-device-body"
-                        hx-get="/api/safety-device?page={{.Page}}&size={{.Size}}"
-                        hx-trigger="load"
-                        hx-swap="innerHTML"
-                    >
+                    <tbody id="emergency-device-body">
                         <!-- Rows will be dynamically loaded here -->
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <div
-            hidden="true"
-            id="popup-content"
-            hx-get="/api/safety-device/1"
-            hx-trigger="load"
-            hx-swap="innerHTML"
-        ></div>
-        <div
-            hidden="true"
-            id="popup-content-2"
-            hx-get="/api/safety-device/2"
-            hx-trigger="load"
-            hx-swap="innerHTML"
-        ></div>
-        <div
-            hidden="true"
-            id="popup-content-polygon"
-            hx-get="/api/safety-device/3"
-            hx-trigger="load"
-            hx-swap="innerHTML"
-        ></div>
 
         <!-- The Modal -->
         <div id="add-device-modal" class="modal">
@@ -209,7 +146,7 @@
                 <form
                     id="create-form"
                     method="POST"
-                    action="/api/safety-device"
+                    action="/api/emergency-device"
                 >
                     <label for="room">Room:</label>
                     <input type="text" id="room" name="room" required />
@@ -262,6 +199,13 @@
             </div>
         </div>
 
+        <!-- Leaflet js-->
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
+
         <script>
             // hot reload
             if (window.EventSource) {
@@ -272,119 +216,100 @@
                 };
             }
         </script>
-        <!-- Leaflet js-->
-        <script
-            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""
-        ></script>
 
         <script>
+            // SVG's intrinsic width/height or viewBox values
+            const svgWidth = 561.568;
+            const svgHeight = 962.941;
+            const minX = 128.009;
+            const minY = 82.331;
+
             var map = L.map("map", {
-                center: [65, 55],
-                minZoom: 2,
-                zoom: 3,
+                crs: L.CRS.Simple,
+                minZoom: -1,
             });
 
-            var imageUrl = "/static/map.svg";
-            /*
-             */
-            var bounds = [
+            var imageUrl = "/static/map_3.svg";
+
+            // Apply these values to the bounds
+            const bounds = [
                 [0, 0],
-                [100, 100],
+                [svgHeight, svgWidth],
             ];
 
             L.imageOverlay(imageUrl, bounds).addTo(map);
 
-            var svgElement = "static/paths_svg.svg";
+            // Fetch the buildings data draw overlay nat each co ordinate
+            fetch("static/buildings.json")
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data);
 
-            L.svgOverlay(svgElement, bounds, {
-                interactive: true,
-            }).addTo(map);
+                    // Loop over the buildings and add a rectangle for each one
+                    data.buildings.forEach((building) => {
+                        var x = building.coordinates.x - minX; // Subtract the min-x value
+                        var y = svgHeight - (building.coordinates.y - minY); // Subtract the min-y value and flip the y-coordinate
 
-            // Add a marker
-            L.marker([4.7502, -74.2]).addTo(map);
+                        // Create the rectangle
+                        var rectangle = L.rectangle([
+                            [y - 19, x], // Subtract the height of the rectangle from the y-coordinate
+                            [y, x + 19],
+                        ]).addTo(map);
 
-            /*// Define coordinates as an array
-      var eit_coords = [-39.54715070573233, 176.83765884508824];
+                        // Add a click event listener to the rectangle
+                        rectangle.on("click", () => {
+                            // Fetch devices for the clicked building
+                            fetchDevices(building.name); // Pass the building code to fetchDevices
+                            console.log("Building clicked:", building.name);
+                        });
+                    });
+                });
 
-      // Initialize the map on the "map" div with a given center and zoom
-      var map = new L.Map("map", {
-        center: new L.LatLng(eit_coords[0], eit_coords[1]),
-        zoom: 17,
-      });
+            map.fitBounds(bounds);
 
-      L.tileLayer(
-        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-          subdomains: "abcd",
-          maxZoom: 20,
-        }
-      ).addTo(map);
+            async function fetchDevices(buildingCode = "") {
+                console.log("Fetching devices for building:", buildingCode);
+                try {
+                    const url = buildingCode
+                        ? `/api/emergency-device?building_code=${buildingCode}`
+                        : "/api/emergency-device";
+                    console.log("URL:", url);
+                    const response = await fetch(url);
+                    const devices = await response.json();
+                    console.log("Devices:", devices);
 
-      const aBlockIcon = L.icon({
-        iconUrl: "https://cdn-icons-png.flaticon.com/512/3595/3595030.png",
-        iconSize: [38, 38],
-      });
+                    const tbody = document.getElementById(
+                        "emergency-device-body"
+                    );
+                    tbody.innerHTML = devices
+                        .map(
+                            (device) => `
+            <tr>
+                <td>${device.emergency_device_id}</td>
+                <td>${device.emergency_device_type_id}</td>
+                <td>${device.room_code}</td>
+                <td>${device.serial_number}</td>
+                <td>${device.manufacture_date}</td>
+                <td>${device.last_inspection_date}</td>
+                <td>${device.description}</td>
+                <td>${device.size}</td>
+                <td>${device.status}</td>
+            </tr>
+        `
+                        )
+                        .join("");
+                } catch (err) {
+                    console.error("Failed to fetch devices:", err);
+                }
+            }
 
-      const jBlockIcon = L.icon({
-        iconUrl: "https://cdn-icons-png.flaticon.com/512/9037/9037234.png",
-        iconSize: [38, 38],
-      });
-
-      // A block marker
-      const aBlockMarker = L.marker([-39.54657515537441, 176.83869530855284], {
-        icon: aBlockIcon,
-      }).addTo(map);
-
-      // J block marker
-      const jBlockMarker = L.marker([-39.546680034111176, 176.839290305618], {
-        icon: jBlockIcon,
-      }).addTo(map);
-
-      /* test polygon
-      var polygon = L.polygon([
-        [-39.546710352704835, 176.8385371636207],
-        [-39.546680222627856, 176.83885533638377],
-        [-39.54641765997021, 176.83882104709406],
-        [-39.54644533055425, 176.83850606403286],
-      ]).addTo(map);
-        */
-
-            /* Bind popups to markers
-
-      document
-        .getElementById("popup-content")
-        .addEventListener("htmx:afterOnLoad", function () {
-            aBlockIcon.bindPopup(this.innerHTML);
-        });
-
-        
-
-      document
-        .getElementById("popup-content-polygon")
-        .addEventListener("htmx:afterOnLoad", function () {
-          polygon.bindPopup(this.innerHTML);
-        });
-
-      
-      const marker2 = L.marker([-39.54656030609369, 176.8387890588548], {
-        icon: customIcon,
-      }).addTo(map);
-      
-
-      document
-        .getElementById("popup-content-2")
-        .addEventListener("htmx:afterOnLoad", function () {
-            jBlockMarker.bindPopup(this.innerHTML);
-        });
-        */
+            // Initial fetch without filtering
+            fetchDevices();
         </script>
+
         <script>
             function toggleMap() {
-                var map = document.getElementById("svg2");
+                var map = document.getElementById("map");
                 if (map.style.display === "none") {
                     map.style.display = "block";
                 } else {
@@ -466,7 +391,7 @@
                             // Insert the new row into the table
                             if (result.rowHTML) {
                                 document
-                                    .getElementById("safety-device-body")
+                                    .getElementById("emergency-device-body")
                                     .insertAdjacentHTML(
                                         "beforeend",
                                         result.rowHTML

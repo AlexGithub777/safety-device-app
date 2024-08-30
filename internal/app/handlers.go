@@ -1,9 +1,9 @@
 package app
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
-	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,165 +17,102 @@ func (a *App) HomeHandler(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
 
-// HomeHandler serves the home page
-func (a *App) MapHandler(c echo.Context) error {
-	pageStr := c.QueryParam("page")
-	fmt.Println(pageStr)
-    sizeStr := c.QueryParam("size")
-
-    page, err := strconv.Atoi(pageStr)
-    if err != nil || page <= 0 {
-        page = 1
-    }
-
-    size, err := strconv.Atoi(sizeStr)
-    if err != nil || size <= 0 {
-        size = 10
-    }
-
-    // Fetch total count of fire extinguishers for pagination
-    var total int
-    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-    if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
-    }
-
-    // Calculate total pages
-    totalPages := int(math.Ceil(float64(total) / float64(size)))
-
-    // Render the root template with pagination data
-    return c.Render(http.StatusOK, "map.html", map[string]interface{}{
-        "Page":       page,
-        "Size":       size,
-        "TotalPages": totalPages,
-    })
-}
 
 func (a *App) HandleDashboard(c echo.Context) error {
-    pageStr := c.QueryParam("page")
-    sizeStr := c.QueryParam("size")
-
-    page, err := strconv.Atoi(pageStr)
-    if err != nil || page <= 0 {
-        page = 1
-    }
-
-    size, err := strconv.Atoi(sizeStr)
-    if err != nil || size <= 0 {
-        size = 10
-    }
-
-    // Fetch total count of fire extinguishers for pagination
-    var total int
-    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-    if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
-    }
-
-    // Calculate total pages
-    totalPages := int(math.Ceil(float64(total) / float64(size)))
-
-    // Render the root template with pagination data
-    return c.Render(http.StatusOK, "fire_extinguishers.html", map[string]interface{}{
-        "Page":       page,
-        "Size":       size,
-        "TotalPages": totalPages,
-    })
+	// Render the root template without pagination data
+	return c.Render(http.StatusOK, "fire_extinguishers.html", nil)
 }
 
 func (a *App) HandleAddDevice(c echo.Context) error {
-	// Parse form data
-	roomStr := c.FormValue("room")
-	fireExtinguisherTypeIDStr := c.FormValue("fire_extinguisher_type_id")
-	serialNumber := c.FormValue("serial_number")
-	dateOfManufactureStr := c.FormValue("date_of_manufacture")
-	expireDateStr := c.FormValue("expire_date")
-	size := c.FormValue("size")
-	misc := c.FormValue("misc")
-	status := c.FormValue("status")
+    // Parse form data
+    roomStr := c.FormValue("room")
+    emergencyDeviceTypeIDStr := c.FormValue("emergency_device_type_id")
+    serialNumber := c.FormValue("serial_number")
+    manufactureDateStr := c.FormValue("manufacture_date")
+    lastInspectionDateStr := c.FormValue("last_inspection_date")
+    size := c.FormValue("size")
+    description := c.FormValue("description")
+    status := c.FormValue("status")
 
-	// Validate input
-	if roomStr == "" || fireExtinguisherTypeIDStr == "" || serialNumber == "" ||
-		dateOfManufactureStr == "" || expireDateStr == "" || size == "" || status == "" {
-		return a.handleError(c, http.StatusBadRequest, "All fields are required", nil)
-	}
+    // Validate input
+    if roomStr == "" || emergencyDeviceTypeIDStr == "" || serialNumber == "" ||
+        manufactureDateStr == "" || size == "" || status == "" {
+        return a.handleError(c, http.StatusBadRequest, "All fields are required", nil)
+    }
 
-	// Convert room ID to integer
-	roomID, err := strconv.Atoi(roomStr)
-	if err != nil {
-		log.Printf("Error converting room to integer: %v", err)
-		return a.handleError(c, http.StatusBadRequest, "All fields are required", nil)
-	}
+    // Convert room ID and emergency device type ID to integers
+    roomID, err := strconv.Atoi(roomStr)
+    if err != nil {
+        log.Printf("Error converting room to integer: %v", err)
+        return a.handleError(c, http.StatusBadRequest, "Invalid room ID", err)
+    }
 
-	// Convert fire extinguisher type ID to integer
-	fireExtinguisherTypeID, err := strconv.Atoi(fireExtinguisherTypeIDStr)
-	if err != nil {
-		log.Printf("Error converting fireExtinguisherTypeID to integer: %v", err)
-		return a.handleError(c, http.StatusBadRequest, "Invalid fire extinguisher type ID", err)
-	}
+    emergencyDeviceTypeID, err := strconv.Atoi(emergencyDeviceTypeIDStr)
+    if err != nil {
+        log.Printf("Error converting emergency device type ID to integer: %v", err)
+        return a.handleError(c, http.StatusBadRequest, "Invalid emergency device type ID", err)
+    }
 
-	// Convert date strings to time.Time using yyyy-mm-dd format
-	dateOfManufacture, err := time.Parse("2006-01-02", dateOfManufactureStr)
-	if err != nil {
-		log.Printf("Error parsing date of manufacture: %v", err)
-		return a.handleError(c, http.StatusBadRequest, "Invalid date of manufacture format", err)
-	}
+    // Parse date strings into time.Time format
+    manufactureDate, err := time.Parse("2006-01-02", manufactureDateStr)
+    if err != nil {
+        log.Printf("Error parsing manufacture date: %v", err)
+        return a.handleError(c, http.StatusBadRequest, "Invalid manufacture date format", err)
+    }
 
-	expireDate, err := time.Parse("2006-01-02", expireDateStr)
-	if err != nil {
-		return a.handleError(c, http.StatusBadRequest, "Invalid expire date format", err)
-	}
+    // Optional: Parse last inspection date if provided
+    var lastInspectionDate sql.NullTime
+    if lastInspectionDateStr != "" {
+        parsedDate, err := time.Parse("2006-01-02", lastInspectionDateStr)
+        if err != nil {
+            return a.handleError(c, http.StatusBadRequest, "Invalid last inspection date format", err)
+        }
+        lastInspectionDate = sql.NullTime{Time: parsedDate, Valid: true}
+    }
 
-	// Insert new safety device
-	var safetyDeviceID int
-	err = a.DB.QueryRow(`
-        INSERT INTO safety_devices (safety_device_type, room_id)
-        VALUES ($1, $2) RETURNING safety_device_id`,
-		"Fire Extinguisher", roomID).Scan(&safetyDeviceID)
-	if err != nil {
-		
-		return a.handleError(c, http.StatusInternalServerError, "Error creating safety device", err)
-	}
-
-	// Create new FireExtinguisher instance
-	newFireExtinguisher := models.FireExtinguisher{
-		SafetyDeviceID:         safetyDeviceID,
-		FireExtinguisherTypeID: fireExtinguisherTypeID,
-		SerialNumber:           serialNumber,
-		DateOfManufacture:      dateOfManufacture,
-		ExpireDate:             expireDate,
-		Size:                   size,
-		Misc:                   misc,
-		Status:                 status,
-	}
-
-	// Insert new fire extinguisher
-	var fireExtinguisherID int
-	err = a.DB.QueryRow(`
-        INSERT INTO fire_extinguishers (
-            safety_device_id, 
-            fire_extinguisher_type_id, 
+    // Insert new emergency device
+    var emergencyDeviceID int
+    err = a.DB.QueryRow(`
+        INSERT INTO emergency_devices (
+            emergency_device_type_id, 
+            room_id, 
+            manufacture_date, 
             serial_number, 
-            date_of_manufacture, 
-            expire_date, 
+            description, 
             size, 
-            misc, 
+            last_inspection_date, 
             status
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8
-        ) RETURNING fire_extinguisher_id
-    `, newFireExtinguisher.SafetyDeviceID, newFireExtinguisher.FireExtinguisherTypeID, newFireExtinguisher.SerialNumber, newFireExtinguisher.DateOfManufacture, newFireExtinguisher.ExpireDate, newFireExtinguisher.Size, newFireExtinguisher.Misc, newFireExtinguisher.Status).
-		Scan(&fireExtinguisherID)
-	if err != nil {
-		
-		return a.handleError(c, http.StatusInternalServerError, "Error creating fire extinguisher", err)
-	}
+        ) RETURNING emergency_device_id
+    `,
+        emergencyDeviceTypeID,
+        roomID,
+        manufactureDate,
+        serialNumber,
+        description,
+        size,
+        lastInspectionDate,
+        status).Scan(&emergencyDeviceID)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error creating emergency device", err)
+    }
 
-	// Update the model with the new ID
-	newFireExtinguisher.FireExtinguisherID = fireExtinguisherID
+    // Create the new EmergencyDevice model
+    newDevice := models.EmergencyDevice{
+        EmergencyDeviceID:    emergencyDeviceID,
+        EmergencyDeviceTypeID: emergencyDeviceTypeID,
+        RoomID:               roomID,
+        ManufactureDate:      manufactureDate,
+        SerialNumber:         serialNumber,
+        Description:          description,
+        Size:                 size,
+        LastInspectionDate:   &lastInspectionDate.Time, // only set if valid
+        Status:               status,
+    }
 
-	// Build HTML for the new row
-	newRowHTML := fmt.Sprintf(`
+    // Build HTML for the new row
+    newRowHTML := fmt.Sprintf(`
         <tr>
             <td>%d</td>
             <td>%d</td>
@@ -187,179 +124,147 @@ func (a *App) HandleAddDevice(c echo.Context) error {
             <td>%s</td>
             <td>%s</td>
         </tr>`,
-		newFireExtinguisher.FireExtinguisherID,
-		newFireExtinguisher.SafetyDeviceID,
-		newFireExtinguisher.FireExtinguisherTypeID,
-		newFireExtinguisher.SerialNumber,
-		newFireExtinguisher.DateOfManufacture.Format("02-01-2006"),
-		newFireExtinguisher.ExpireDate.Format("02-01-2006"),
-		newFireExtinguisher.Size,
-		newFireExtinguisher.Misc,
-		newFireExtinguisher.Status,
-	)
-
-	return c.JSON(http.StatusOK, map[string]string{
-		"message": "Fire extinguisher created successfully.",
-		"rowHTML": newRowHTML,
-	})
-}
-
-func (a *App) GetDeviceTableHTML(c echo.Context) error {
-	pageStr := c.QueryParam("page")
-	sizeStr := c.QueryParam("size")
-
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page <= 0 {
-		page = 1
-	}
-
-	size, err := strconv.Atoi(sizeStr)
-	if err != nil || size <= 0 {
-		size = 10
-	}
-
-	// Fetch total count of fire extinguishers for pagination
-	var total int
-	err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error fetching count")
-	}
-
-	offset := (page - 1) * size
-
-	fireExtinguishers := []models.FireExtinguisher{}
-	rows, err := a.DB.Query(`
-        SELECT fire_extinguisher_id, safety_device_id, fire_extinguisher_type_id, serial_number, date_of_manufacture, expire_date, size, misc, status 
-        FROM fire_extinguishers 
-        LIMIT $1 OFFSET $2`, size, offset)
-	if err != nil {
-		return c.String(http.StatusInternalServerError, "Error fetching data")
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var fireExtinguisher models.FireExtinguisher
-		if err := rows.Scan(
-			&fireExtinguisher.FireExtinguisherID,
-			&fireExtinguisher.SafetyDeviceID,
-			&fireExtinguisher.FireExtinguisherTypeID,
-			&fireExtinguisher.SerialNumber,
-			&fireExtinguisher.DateOfManufacture,
-			&fireExtinguisher.ExpireDate,
-			&fireExtinguisher.Size,
-			&fireExtinguisher.Misc,
-			&fireExtinguisher.Status); err != nil {
-			return c.String(http.StatusInternalServerError, "Error scanning data")
-		}
-		fireExtinguishers = append(fireExtinguishers, fireExtinguisher)
-	}
-
-	data := map[string]interface{}{
-		"FireExtinguishers": fireExtinguishers,
-	}
-
-	return c.Render(http.StatusOK, "fire_extinguishers_table.html", data)
-}
-
-func (a *App) GetPaginationControls(c echo.Context) error {
-    pageStr := c.QueryParam("page")
-    sizeStr := c.QueryParam("size")
-
-    page, err := strconv.Atoi(pageStr)
-    if err != nil || page <= 0 {
-        page = 1
-    }
-
-    size, err := strconv.Atoi(sizeStr)
-    if err != nil || size <= 0 {
-        size = 10
-    }
-
-    // Fetch total count of fire extinguishers for pagination
-    var total int
-    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
-    if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
-    }
-
-    totalPages := int(math.Ceil(float64(total) / float64(size)))
-
-    data := map[string]interface{}{
-        "Page":       page,
-        "Size":       size,
-        "TotalPages": totalPages,
-    }
-
-    return c.Render(http.StatusOK, "pagination_controls.html", data)
-}
-
-func (a *App) SingleFireExtinguisherHandler(c echo.Context) error {
-    idStr := c.Param("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        return a.handleError(c, http.StatusBadRequest, "Invalid ID", err)
-    }
-
-    // Assuming you have a method GetFireExtinguisher that fetches a fire extinguisher by ID
-    fireExtinguisher, err := a.GetFireExtinguisher(id)
-    if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching fire extinguisher", err)
-    }
-
-    return c.Render(http.StatusOK, "fire_extinguisher.html", fireExtinguisher)
-}
-
-// GetFireExtinguisher fetches a fire extinguisher by its ID
-func (a *App) GetFireExtinguisher(id int) (*models.FireExtinguisher, error) {
-    var fireExtinguisher models.FireExtinguisher
-
-    err := a.DB.QueryRow("SELECT * FROM fire_extinguishers WHERE fire_extinguisher_id = $1", id).Scan(
-        &fireExtinguisher.FireExtinguisherID,
-        &fireExtinguisher.SafetyDeviceID,
-        &fireExtinguisher.FireExtinguisherTypeID,
-        &fireExtinguisher.SerialNumber,
-        &fireExtinguisher.DateOfManufacture,
-        &fireExtinguisher.ExpireDate,
-        &fireExtinguisher.Size,
-        &fireExtinguisher.Misc,
-        &fireExtinguisher.Status,
+        newDevice.EmergencyDeviceID,
+        newDevice.EmergencyDeviceTypeID,
+        newDevice.RoomID,
+        newDevice.SerialNumber,
+        newDevice.ManufactureDate.Format("02-01-2006"),
+        newDevice.Size,
+        newDevice.Description,
+        newDevice.LastInspectionDate.Format("02-01-2006"), // ensure this is set correctly
+        newDevice.Status,
     )
 
-    if err != nil {
-        return nil, err
-    }
-
-    return &fireExtinguisher, nil
+    // Return success message and the new row HTML
+    return c.JSON(http.StatusOK, map[string]string{
+        "message": "Emergency device created successfully.",
+        "rowHTML": newRowHTML,
+    })
 }
 
-func (a *App) SingleBuildingHandler(c echo.Context) error {
-    idStr := c.Param("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        return a.handleError(c, http.StatusBadRequest, "Invalid ID", err)
+func (a *App) GetAllDevices(c echo.Context) error {
+    buildingCode := c.QueryParam("building_code")
+    var query string
+    var args []interface{}
+
+    // Define the base query
+    query = `
+        SELECT 
+            ed.emergencydeviceid, 
+            ed.emergencydevicetypeid, 
+            r.name AS roomcode,
+            ed.serialnumber,
+            ed.manufacturedate,
+            ed.lastinspectiondate,
+            ed.description,
+            ed.size,
+            ed.status 
+        FROM emergency_deviceT ed
+        JOIN roomT r ON ed.roomid = r.roomid
+    `
+
+    // Add filtering by building code if provided
+    if buildingCode != "" {
+        query += `
+            JOIN buildingT b ON r.buildingid = b.buildingid
+            WHERE b.buildingcode = $1
+        `
+        args = append(args, buildingCode)
     }
 
-
-    building, err := a.GetBuilding(id)
+    // Prepare and execute the query
+    rows, err := a.DB.Query(query, args...)
     if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching fire extinguisher", err)
+        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error fetching data"})
+    }
+    defer rows.Close()
+
+    // Define the result slice
+    emergencyDevices := []struct {
+        models.EmergencyDevice
+        RoomCode string `json:"room_code"`
+    }{}
+
+    // Scan the results
+    for rows.Next() {
+        var emergencyDevice struct {
+            models.EmergencyDevice
+            RoomCode string `json:"room_code"`
+        }
+        if err := rows.Scan(
+            &emergencyDevice.EmergencyDeviceID,
+            &emergencyDevice.EmergencyDeviceTypeID,
+            &emergencyDevice.RoomCode,
+            &emergencyDevice.SerialNumber,
+            &emergencyDevice.ManufactureDate,
+            &emergencyDevice.LastInspectionDate,
+            &emergencyDevice.Description,
+            &emergencyDevice.Size,
+            &emergencyDevice.Status,
+        ); err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error scanning data"})
+        }
+        emergencyDevices = append(emergencyDevices, emergencyDevice)
     }
 
-    return c.Render(http.StatusOK, "building_name.html", building)
+    // Return the results as JSON
+    return c.JSON(http.StatusOK, emergencyDevices)
 }
 
-// GetBuilding fetches a building by its ID
-func (a *App) GetBuilding(id int) (*models.Building, error) {
-    var building models.Building
+func (a *App) GetDevicesByBuildingCode(c echo.Context) error {
+    buildingCode := c.Param("building_code")
 
-    err := a.DB.QueryRow("SELECT name FROM buildings WHERE building_id = $1", id).Scan(
-        &building.Name,
-    )
+    // Define a struct to hold the query results with embedded EmergencyDevice
+    emergencyDevices := []struct {
+        models.EmergencyDevice
+        RoomCode string `json:"room_code"`
+    }{}
 
+    // Execute the query to fetch devices by building code
+    rows, err := a.DB.Query(`
+        SELECT 
+            ed.emergency_device_id, 
+            ed.emergency_device_type_id, 
+            r.code AS room_code,
+            ed.serial_number,
+            ed.manufacture_date,
+            ed.last_inspection_date,
+            ed.description,
+            ed.size,
+            ed.status
+        FROM emergency_devices ed
+        JOIN rooms r ON ed.room_id = r.room_id
+        JOIN buildings b ON r.building_id = b.building_id
+        WHERE b.code = $1`, buildingCode)
     if err != nil {
-        return nil, err
+        return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error fetching data"})
+    }
+    defer rows.Close()
+
+    // Iterate through rows and scan data into the struct
+    for rows.Next() {
+        var device struct {
+            models.EmergencyDevice
+            RoomCode string `json:"room_code"`
+        }
+        if err := rows.Scan(
+            &device.EmergencyDevice.EmergencyDeviceID,
+            &device.EmergencyDevice.EmergencyDeviceTypeID,
+            &device.EmergencyDevice.RoomID,
+            &device.EmergencyDevice.SerialNumber,
+            &device.EmergencyDevice.ManufactureDate,
+            &device.EmergencyDevice.LastInspectionDate,
+            &device.EmergencyDevice.Description,
+            &device.EmergencyDevice.Size,
+            &device.EmergencyDevice.Status,
+            &device.RoomCode,
+        ); err != nil {
+            return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Error scanning data"})
+        }
+        emergencyDevices = append(emergencyDevices, device)
     }
 
-    return &building, nil
+    // Return the result as JSON
+    return c.JSON(http.StatusOK, emergencyDevices)
 }
 
