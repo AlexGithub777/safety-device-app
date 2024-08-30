@@ -9,15 +9,15 @@ import (
 // GetAllDevices fetches all emergency devices from the database with optional filtering by building code
 // and returns the results as JSON
 func (a *App) GetAllDevices(c echo.Context) error {
-    buildingCode := c.QueryParam("building_code")
+	buildingCode := c.QueryParam("building_code")
 
-    emergencyDevices, err := a.DB.FetchAllDevices(buildingCode)
-    if err != nil {
-        return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
-    }
+	emergencyDevices, err := a.DB.FetchAllDevices(buildingCode)
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
 
-    // Return the results as JSON
-    return c.JSON(http.StatusOK, emergencyDevices)
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, emergencyDevices)
 }
 
 /*
@@ -72,13 +72,13 @@ func (a *App) HandleAddDevice(c echo.Context) error {
     var emergencyDeviceID int
     err = a.DB.QueryRow(`
         INSERT INTO emergency_devices (
-            emergency_device_type_id, 
-            room_id, 
-            manufacture_date, 
-            serial_number, 
-            description, 
-            size, 
-            last_inspection_date, 
+            emergency_device_type_id,
+            room_id,
+            manufacture_date,
+            serial_number,
+            description,
+            size,
+            last_inspection_date,
             status
         ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8
