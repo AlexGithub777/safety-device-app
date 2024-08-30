@@ -19,10 +19,39 @@ func (a *App) HomeHandler(c echo.Context) error {
 
 // HomeHandler serves the home page
 func (a *App) MapHandler(c echo.Context) error {
-	return c.Render(http.StatusOK, "map.html", nil)
+	pageStr := c.QueryParam("page")
+	fmt.Println(pageStr)
+    sizeStr := c.QueryParam("size")
+
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1
+    }
+
+    size, err := strconv.Atoi(sizeStr)
+    if err != nil || size <= 0 {
+        size = 10
+    }
+
+    // Fetch total count of fire extinguishers for pagination
+    var total int
+    err = a.DB.QueryRow("SELECT COUNT(*) FROM fire_extinguishers").Scan(&total)
+    if err != nil {
+        return a.handleError(c, http.StatusInternalServerError, "Error fetching count", err)
+    }
+
+    // Calculate total pages
+    totalPages := int(math.Ceil(float64(total) / float64(size)))
+
+    // Render the root template with pagination data
+    return c.Render(http.StatusOK, "map.html", map[string]interface{}{
+        "Page":       page,
+        "Size":       size,
+        "TotalPages": totalPages,
+    })
 }
 
-func (a *App) FireExtinguisherHandler(c echo.Context) error {
+func (a *App) HandleDashboard(c echo.Context) error {
     pageStr := c.QueryParam("page")
     sizeStr := c.QueryParam("size")
 
@@ -54,7 +83,7 @@ func (a *App) FireExtinguisherHandler(c echo.Context) error {
     })
 }
 
-func (a *App) CreateFireExtinguisher(c echo.Context) error {
+func (a *App) HandleAddDevice(c echo.Context) error {
 	// Parse form data
 	roomStr := c.FormValue("room")
 	fireExtinguisherTypeIDStr := c.FormValue("fire_extinguisher_type_id")
@@ -175,7 +204,7 @@ func (a *App) CreateFireExtinguisher(c echo.Context) error {
 	})
 }
 
-func (a *App) GetFireExtinguishersHTML(c echo.Context) error {
+func (a *App) GetDeviceTableHTML(c echo.Context) error {
 	pageStr := c.QueryParam("page")
 	sizeStr := c.QueryParam("size")
 
