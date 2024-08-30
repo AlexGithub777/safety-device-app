@@ -33,169 +33,74 @@
             crossorigin="anonymous"
         />
         <style>
+            /* Map container styling */
             #map {
-                width: 40vw;
                 height: 50vh;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                background-color: #e9ecef; /* Added background color for visibility */
             }
 
+            /* Device list container */
             .device-list {
-                width: 100vw;
-                height: 100vh;
-                /*overflow-y: scroll;*/
+                overflow-y: auto;
             }
 
-            @media (max-width: 992px) {
-                #map {
-                    width: 100%;
-                    height: 50vh;
-                }
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-            table,
-            th,
-            td {
-                border: 1px solid black;
-            }
-            th,
-            td {
-                padding: 8px;
-                text-align: left;
-            }
-            /* Modal styles */
-            .modal {
-                display: none; /* Hidden by default */
-                position: fixed;
-                z-index: 1;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: 100%;
-                overflow: auto;
-                background-color: rgb(0, 0, 0);
-                background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-            }
-            .modal-content {
-                background-color: #fefefe;
-                margin: 15% auto;
-                padding: 20px;
-                border: 1px solid #888;
-                width: 80%;
-            }
-            .close {
-                color: #aaa;
-                float: right;
-                font-size: 28px;
-                font-weight: bold;
-            }
-            .close:hover,
-            .close:focus {
-                color: black;
-                text-decoration: none;
-                cursor: pointer;
+            #map {
+                border-radius: 8px;
             }
         </style>
     </head>
     <body>
         <header>
-            <div class="fluid-container d-lg-flex justify-content-around">
-                <p class="d-flex text-center h1">
+            <div class="fluid-container">
+                <p class="h1 text-center py-3 bg-dark text-light">
                     Emergency Device Management System
                 </p>
             </div>
         </header>
-        <button onclick="toggleMap()">Toggle Map</button>
 
-        <script></script>
-        <div class="fluid-container d-lg-flex">
-            <!-- Map -->
-            <div id="map"></div>
-
-            <div class="device-list">
-                <h3 class="text-center">Device List</h3>
-                <button id="add-device-btn">Add Device</button>
-
-                <table class="mx-3 overflow-x-scroll">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Type ID</th>
-                            <th>Room Code</th>
-                            <th>Serial Number</th>
-                            <th>Date of Manufacture</th>
-                            <th>Last Inspection Date</th>
-                            <th>Description</th>
-                            <th>Size</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="emergency-device-body">
-                        <!-- Rows will be dynamically loaded here -->
-                    </tbody>
-                </table>
+        <div class="container-fluid">
+            <!-- Toggle Map button -->
+            <div class="text-center mb-4">
+                <button class="btn btn-primary" onclick="toggleMap()">
+                    Toggle Map
+                </button>
+                <button class="btn btn-success" id="add-device-btn">
+                    Add Device
+                </button>
             </div>
-        </div>
 
-        <!-- The Modal -->
-        <div id="add-device-modal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Add New Device</h2>
-                <form
-                    id="create-form"
-                    method="POST"
-                    action="/api/emergency-device"
-                >
-                    <label for="room">Room:</label>
-                    <input type="text" id="room" name="room" required />
+            <div class="row mx-lg-2">
+                <!-- Map Section -->
+                <div id="map" class="col-12 col-lg-4 mb-4"></div>
 
-                    <label for="fire_extinguisher_type_id">Type ID:</label>
-                    <input
-                        type="text"
-                        id="fire_extinguisher_type_id"
-                        name="fire_extinguisher_type_id"
-                        required
-                    />
-
-                    <label for="serial_number">Serial Number:</label>
-                    <input
-                        type="text"
-                        id="serial_number"
-                        name="serial_number"
-                        required
-                    />
-
-                    <label for="date_of_manufacture"
-                        >Date of Manufacture:</label
+                <!-- Device List Section -->
+                <div class="device-list col-12 col-lg-8">
+                    <!-- Bootstrap Table -->
+                    <p class="h3 text-lg-center">Emergency Devices</p>
+                    <table
+                        class="table table-striped table-hover table-responsive"
                     >
-                    <input
-                        type="date"
-                        id="date_of_manufacture"
-                        name="date_of_manufacture"
-                        required
-                    />
-
-                    <label for="expire_date">Expire Date:</label>
-                    <input
-                        type="date"
-                        id="expire_date"
-                        name="expire_date"
-                        required
-                    />
-
-                    <label for="size">Size:</label>
-                    <input type="text" id="size" name="size" required />
-
-                    <label for="misc">Misc:</label>
-                    <textarea id="misc" name="misc"></textarea>
-
-                    <label for="status">Status:</label>
-                    <input type="text" id="status" name="status" required />
-
-                    <button type="submit">Create Device</button>
-                </form>
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Type</th>
+                                <th>Room</th>
+                                <th>Serial Number</th>
+                                <th>Manufacture Date</th>
+                                <th>Expire Date</th>
+                                <th>Last Inspection Date</th>
+                                <th>Next Inspection Date</th>
+                                <th>Size</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emergency-device-body">
+                            <!-- Rows will be dynamically loaded here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -282,21 +187,87 @@
                         "emergency-device-body"
                     );
                     tbody.innerHTML = devices
-                        .map(
-                            (device) => `
-            <tr>
-                <td>${device.emergency_device_id}</td>
-                <td>${device.emergency_device_type_id}</td>
-                <td>${device.room_code}</td>
-                <td>${device.serial_number}</td>
-                <td>${device.manufacture_date}</td>
-                <td>${device.last_inspection_date}</td>
-                <td>${device.description}</td>
-                <td>${device.size}</td>
-                <td>${device.status}</td>
-            </tr>
-        `
-                        )
+                        .map((device) => {
+                            // Calculate next inspection date and expiry date
+                            let nextInspectionDate = "N/A";
+                            if (device.last_inspection_date) {
+                                const lastInspectionDate = new Date(
+                                    device.last_inspection_date
+                                );
+                                nextInspectionDate = new Date(
+                                    lastInspectionDate.setMonth(
+                                        lastInspectionDate.getMonth() + 3
+                                    )
+                                );
+                                nextInspectionDate = nextInspectionDate
+                                    .toISOString()
+                                    .split("T")[0];
+                            }
+
+                            const manufactureDate = new Date(
+                                device.manufacture_date
+                            );
+                            const expiryDate = new Date(manufactureDate);
+                            expiryDate.setFullYear(
+                                manufactureDate.getFullYear() + 5
+                            );
+
+                            let badgeClass = "text-bg-warning";
+                            if (device.status === "Active") {
+                                badgeClass = "text-bg-success";
+                            } else if (device.status === "Expired") {
+                                badgeClass = "text-bg-danger";
+                            }
+
+                            return `
+                    <tr>
+                        <td>${device.emergency_device_type_name}</td>
+                        <td>${device.room_code}</td>
+                        <td>${device.serial_number}</td>
+                        <td>${manufactureDate.toISOString().split("T")[0]}</td>
+                        <td>${expiryDate.toISOString().split("T")[0]}</td>
+                        <td>${nextInspectionDate}</td>
+                        <td>${
+                            device.last_inspection_date
+                                ? new Date(device.last_inspection_date)
+                                      .toISOString()
+                                      .split("T")[0]
+                                : "N/A"
+                        }</td>
+                        <td>${device.size}</td>
+                        <td><span class="badge ${badgeClass}">${
+                                device.status
+                            }</span></td>
+                            <td>
+                                <div class="d-flex justify-content-around align-items-center gap-2">
+                                    <button class="btn btn-secondary" onclick="inspectDevice(${
+                                        device.emergency_device_id
+                                    })">
+                                        Inspect
+                                    </button>
+
+                                    <button class="btn btn-primary" onclick="DeviceNotes(${
+                                        device.emergency_device_id
+                                    })">
+                                        Notes
+                                    </button>
+
+                                    <button class="btn btn-warning" onclick="editDevice(${
+                                        device.emergency_device_id
+                                    })">
+                                        Edit
+                                    </button>
+
+                                    <button class="btn btn-danger" onclick="deleteDevice(${
+                                        device.emergency_device_id
+                                    })">
+                                        Delete
+                                    </button>
+                                </div>
+                            </td>
+                    </tr>
+                `;
+                        })
                         .join("");
                 } catch (err) {
                     console.error("Failed to fetch devices:", err);
@@ -305,15 +276,45 @@
 
             // Initial fetch without filtering
             fetchDevices();
+
+            function editDevice(deviceId) {
+                console.log(`Edit device with ID: ${deviceId}`);
+                // Add your edit logic here
+            }
+
+            function deleteDevice(deviceId) {
+                console.log(`Delete device with ID: ${deviceId}`);
+                // Add your delete logic here
+            }
+
+            function inspectDevice(deviceId) {
+                console.log(`Inspect device with ID: ${deviceId}`);
+                // Add your inspect logic here
+            }
+
+            function DeviceNotes(deviceId) {
+                console.log(`Add/Edit device notes with ID: ${deviceId}`);
+                // Add your edit notes logic here
+            }
         </script>
 
         <script>
             function toggleMap() {
                 var map = document.getElementById("map");
-                if (map.style.display === "none") {
-                    map.style.display = "block";
+                var deviceList = document.querySelector(".device-list");
+
+                // Check if the map is currently visible
+                if (map.classList.contains("d-none")) {
+                    // Map is hidden, show the map and set device list back to col-8 width
+                    map.classList.remove("d-none");
+                    map.classList.add("col-lg-4");
+                    deviceList.classList.remove("col-lg-12");
+                    deviceList.classList.add("col-lg-8");
                 } else {
-                    map.style.display = "none";
+                    // Map is visible, hide the map and make device list 100% width
+                    map.classList.add("d-none");
+                    deviceList.classList.remove("col-lg-8");
+                    deviceList.classList.add("col-lg-12");
                 }
             }
         </script>
