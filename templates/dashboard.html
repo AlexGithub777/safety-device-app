@@ -220,8 +220,8 @@
                     );
                     tbody.innerHTML = devices
                         .map((device) => {
-                            // Helper function to format dates to DD-MM-YYYY or show "N/A"
-                            const formatDate = (dateString) => {
+                            // Helper function to format dates as "Month YYYY" or "N/A" for manufacture and expiry dates
+                            const formatDateMonthYear = (dateString) => {
                                 if (
                                     !dateString ||
                                     dateString === "0001-01-01T00:00:00Z"
@@ -229,15 +229,26 @@
                                     return "N/A";
                                 }
                                 const date = new Date(dateString);
-                                const day = String(date.getDate()).padStart(
-                                    2,
-                                    "0"
-                                );
-                                const month = String(
-                                    date.getMonth() + 1
-                                ).padStart(2, "0");
-                                const year = date.getFullYear();
-                                return `${day}-${month}-${year}`;
+                                return date.toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                });
+                            };
+
+                            // Helper function to format dates as "Month Day, YYYY" or "N/A" for inspection dates
+                            const formatDateFull = (dateString) => {
+                                if (
+                                    !dateString ||
+                                    dateString === "0001-01-01T00:00:00Z"
+                                ) {
+                                    return "N/A";
+                                }
+                                const date = new Date(dateString);
+                                return date.toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                });
                             };
 
                             // Get the badge class based on the status
@@ -255,10 +266,16 @@
                         <td>${device.extinguisher_type_name.String}</td>
                         <td>${device.room_name}</td>
                         <td>${device.serial_number.String}</td>
-                        <td>${formatDate(device.manufacture_date.Time)}</td>
-                        <td>${formatDate(device.expire_date.Time)}</td>
-                        <td>${formatDate(device.last_inspection_date.Time)}</td>
-                        <td>${formatDate(device.next_inspection_date.Time)}</td>
+                        <td>${formatDateMonthYear(
+                            device.manufacture_date.Time
+                        )}</td>
+                        <td>${formatDateMonthYear(device.expire_date.Time)}</td>
+                        <td>${formatDateFull(
+                            device.last_inspection_date.Time
+                        )}</td>
+                        <td>${formatDateFull(
+                            device.next_inspection_date.Time
+                        )}</td>
                         <td>${device.size.String}</td>
                         <td><span class="badge ${badgeClass}">${
                                 device.status.String
