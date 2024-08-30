@@ -32,19 +32,20 @@ func (a *App) GetAllDevices(c echo.Context) error {
 
     // Define the base query
     query = `
-        SELECT 
-            ed.emergencydeviceid, 
-            edt.emergencydevicetypename, 
-            r.name AS roomcode,
-            ed.serialnumber,
-            ed.manufacturedate,
-            ed.lastinspectiondate,
-            ed.description,
-            ed.size,
-            ed.status 
-        FROM emergency_deviceT ed
-        JOIN roomT r ON ed.roomid = r.roomid
-		JOIN emergency_device_typeT edt ON ed.emergencydevicetypeid = edt.emergencydevicetypeid
+	SELECT 
+	ed.emergencydeviceid, 
+	edt.emergencydevicetypename,
+	ed.extinguishertype,
+	r.name as Room,
+	ed.serialnumber,
+	ed.manufacturedate,
+	ed.lastinspectiondate,
+	ed.description,
+	ed.size,
+	ed.status 
+	FROM emergency_deviceT ed
+	JOIN roomT r ON ed.roomid = r.roomid
+	JOIN emergency_device_typeT edt ON ed.emergencydevicetypeid = edt.emergencydevicetypeid
     `
 
     // Add filtering by building code if provided
@@ -67,7 +68,8 @@ func (a *App) GetAllDevices(c echo.Context) error {
 	emergencyDevices := []struct {
 		models.EmergencyDevice
 		EmergencyDeviceTypeName string `json:"emergency_device_type_name"`
-		RoomCode            string `json:"room_code"`
+		Room           string `json:"room"`
+		ExtinguisherType string `json:"extinguisher_type"`
 	}{}
 
 	// Scan the results
@@ -75,15 +77,18 @@ func (a *App) GetAllDevices(c echo.Context) error {
 		var emergencyDevice struct {
 			models.EmergencyDevice
 			EmergencyDeviceTypeName string `json:"emergency_device_type_name"`
-			RoomCode            string `json:"room_code"`
+			Room            string `json:"room"`
+			ExtinguisherType string `json:"extinguisher_type"`
 		}
 		if err := rows.Scan(
 			&emergencyDevice.EmergencyDeviceID,
 			&emergencyDevice.EmergencyDeviceTypeName, // Scan into the new field
-			&emergencyDevice.RoomCode,
+			&emergencyDevice.ExtinguisherType,
+			&emergencyDevice.Room,
 			&emergencyDevice.SerialNumber,
 			&emergencyDevice.ManufactureDate,
 			&emergencyDevice.LastInspectionDate,
+			&emergencyDevice.Description,
 			&emergencyDevice.Size,
 			&emergencyDevice.Status,
 		); err != nil {

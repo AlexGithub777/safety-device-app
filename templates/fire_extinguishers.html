@@ -4,21 +4,14 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Device List</title>
-        <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+        <!-- Toastify JS -->
         <script
             src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.js"
             integrity="sha512-MnKz2SbnWiXJ/e0lSfSzjaz9JjJXQNb2iykcZkEY2WOzgJIWVqJBFIIPidlCjak0iTH2bt2u1fHQ4pvKvBYy6Q=="
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         ></script>
-        <!-- Leaflet CSS -->
-        <link
-            rel="stylesheet"
-            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-            crossorigin=""
-        />
-        <script></script>
+        <!-- Toastify CSS-->
         <link
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
@@ -26,12 +19,29 @@
             crossorigin="anonymous"
             referrerpolicy="no-referrer"
         />
+        <!-- Leaflet CSS -->
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+        />
+        <!-- jQuery -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+        <!-- Bootstrap CSS -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet"
             integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
             crossorigin="anonymous"
         />
+        <!-- Bootstrap JS -->
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
         <style>
             /* Map container styling */
             #map {
@@ -84,7 +94,8 @@
                     >
                         <thead class="table-primary">
                             <tr>
-                                <th>Type</th>
+                                <th>Device Type</th>
+                                <th>Extinguisher Type</th>
                                 <th>Room</th>
                                 <th>Serial Number</th>
                                 <th>Manufacture Date</th>
@@ -100,6 +111,30 @@
                             <!-- Rows will be dynamically loaded here -->
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Notes Modal -->
+        <div id="notesModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Device Notes</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p id="notesModalBody">Some text in the modal.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-default"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,7 +257,8 @@
                             return `
                     <tr>
                         <td>${device.emergency_device_type_name}</td>
-                        <td>${device.room_code}</td>
+                        <td>${device.extinguisher_type}</td>
+                        <td>${device.room}</td>
                         <td>${device.serial_number}</td>
                         <td>${manufactureDate.toISOString().split("T")[0]}</td>
                         <td>${expiryDate.toISOString().split("T")[0]}</td>
@@ -246,10 +282,9 @@
                                         Inspect
                                     </button>
 
-                                    <button class="btn btn-primary" onclick="DeviceNotes(${
-                                        device.emergency_device_id
-                                    })">
-                                        Notes
+                                    <button class="btn btn-primary" onclick="DeviceNotes('${
+                                        device.description
+                                    }')">Notes
                                     </button>
 
                                     <button class="btn btn-warning" onclick="editDevice(${
@@ -292,9 +327,13 @@
                 // Add your inspect logic here
             }
 
-            function DeviceNotes(deviceId) {
-                console.log(`Add/Edit device notes with ID: ${deviceId}`);
-                // Add your edit notes logic here
+            function DeviceNotes(description) {
+                // Populate the modal with the description
+                document.getElementById("notesModalBody").innerText =
+                    description;
+
+                // Show the modal
+                $("#notesModal").modal("show");
             }
         </script>
 
@@ -320,32 +359,6 @@
         </script>
 
         <script>
-            // Get the modal
-            var modal = document.getElementById("add-device-modal");
-
-            // Get the button that opens the modal
-            var btn = document.getElementById("add-device-btn");
-
-            // Get the <span> element that closes the modal
-            var span = document.getElementsByClassName("close")[0];
-
-            // When the user clicks the button, open the modal
-            btn.onclick = function () {
-                modal.style.display = "block";
-            };
-
-            // When the user clicks on <span> (x), close the modal
-            span.onclick = function () {
-                modal.style.display = "none";
-            };
-
-            // When the user clicks anywhere outside of the modal, close it
-            window.onclick = function (event) {
-                if (event.target == modal) {
-                    modal.style.display = "none";
-                }
-            };
-
             document
                 .getElementById("create-form")
                 .addEventListener("submit", async function (event) {
