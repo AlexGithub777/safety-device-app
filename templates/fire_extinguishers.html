@@ -1,247 +1,491 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fire Extinguishers</title>
-    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.js"
-      integrity="sha512-MnKz2SbnWiXJ/e0lSfSzjaz9JjJXQNb2iykcZkEY2WOzgJIWVqJBFIIPidlCjak0iTH2bt2u1fHQ4pvKvBYy6Q=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
-      integrity="sha512-VSD3lcSci0foeRFRHWdYX4FaLvec89irh5+QAGc00j5AOdow2r5MFPhoPEYBUQdyarXwbzyJEO7Iko7+PnPuBw=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
-    <style>
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      table,
-      th,
-      td {
-        border: 1px solid black;
-      }
-      th,
-      td {
-        padding: 8px;
-        text-align: left;
-      }
-      /* Modal styles */
-      .modal {
-        display: none; /* Hidden by default */
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgb(0, 0, 0);
-        background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
-      }
-      .modal-content {
-        background-color: #fefefe;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-      }
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-      }
-      .close:hover,
-      .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Fire Extinguishers</h1>
-    <button id="add-fire-extinguisher-btn">Add Fire Extinguisher</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Device List</title>
+        <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.js"
+            integrity="sha512-MnKz2SbnWiXJ/e0lSfSzjaz9JjJXQNb2iykcZkEY2WOzgJIWVqJBFIIPidlCjak0iTH2bt2u1fHQ4pvKvBYy6Q=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <!-- Leaflet CSS -->
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossorigin=""
+        />
+        <script>
+            function loadSVG() {
+                var svg = "static/map_3.svg";
+                var object = document.createElement("object");
+                object.type = "image/svg+xml";
+                object.data = svg;
+                object.onload = function () {
+                    // Get all path elements with id "p"
+                    const pathElements =
+                        object.contentDocument.querySelectorAll("#p");
 
-    <div
-      id="pagination-controls_base"
-      hx-get="/fire-extinguishers/pagination?page={{.Page}}&size={{.Size}}"
-      hx-trigger="load"
-      hx-swap="innerHTML"
-    >
-      <!-- Pagination controls will be dynamically loaded here -->
-    </div>
+                    // Loop over the path elements and add the click event listener to each one
+                    pathElements.forEach(function (pathElement) {
+                        pathElement.addEventListener("click", function () {
+                            alert(
+                                "You clicked on a path element with id: " +
+                                    this.id
+                            );
+                        });
+                    });
+                };
+                document.getElementById("svg2").appendChild(object);
+            }
+            window.onload = loadSVG;
+        </script>
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
+            integrity="sha512-VSD3lcSci0foeRFRHWdYX4FaLvec89irh5+QAGc00j5AOdow2r5MFPhoPEYBUQdyarXwbzyJEO7Iko7+PnPuBw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+        <style>
+            #map {
+                width: 40vw;
+                height: 50vh;
+            }
 
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Safety Device ID</th>
-          <th>Type ID</th>
-          <th>Serial Number</th>
-          <th>Date of Manufacture</th>
-          <th>Expire Date</th>
-          <th>Size</th>
-          <th>Misc</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody
-        id="fire-extinguishers-body"
-        hx-get="/fire-extinguishers/data?page={{.Page}}&size={{.Size}}"
-        hx-trigger="load"
-        hx-swap="innerHTML"
-      >
-        <!-- Rows will be dynamically loaded here -->
-      </tbody>
-    </table>
+            .device-list {
+                width: 100vw;
+                height: 100vh;
+                /*overflow-y: scroll;*/
+            }
 
-    <!-- The Modal -->
-    <div id="fire-extinguisher-modal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Add Fire Extinguisher</h2>
-        <form id="create-form" method="POST" action="/api/fire-extinguishers">
-          <label for="room">Room:</label>
-          <input type="text" id="room" name="room" required />
+            @media (max-width: 992px) {
+                #map {
+                    width: 100%;
+                    height: 50vh;
+                }
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table,
+            th,
+            td {
+                border: 1px solid black;
+            }
+            th,
+            td {
+                padding: 8px;
+                text-align: left;
+            }
+            /* Modal styles */
+            .modal {
+                display: none; /* Hidden by default */
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgb(0, 0, 0);
+                background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+            }
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+            }
+            .close:hover,
+            .close:focus {
+                color: black;
+                text-decoration: none;
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <div class="fluid-container d-lg-flex justify-content-around">
+                <p class="d-flex text-center h1">
+                    Emergency Device Management System
+                </p>
+            </div>
+        </header>
+        <button onclick="toggleMap()">Toggle Map</button>
 
-          <label for="fire_extinguisher_type_id">Type ID:</label>
-          <input
-            type="text"
-            id="fire_extinguisher_type_id"
-            name="fire_extinguisher_type_id"
-            required
-          />
+        <script></script>
+        <div class="fluid-container d-lg-flex">
+            <!-- Map -->
+            <!--<div id="map"></div>-->
 
-          <label for="serial_number">Serial Number:</label>
-          <input type="text" id="serial_number" name="serial_number" required />
+            <div id="svg2" style=""></div>
 
-          <label for="date_of_manufacture">Date of Manufacture:</label>
-          <input
-            type="date"
-            id="date_of_manufacture"
-            name="date_of_manufacture"
-            required
-          />
+            <div class="device-list">
+                <h3 class="text-center">Device List</h3>
+                <button id="add-device-btn">Add Device</button>
 
-          <label for="expire_date">Expire Date:</label>
-          <input type="date" id="expire_date" name="expire_date" required />
+                <div
+                    class="px-3"
+                    id="pagination-controls_base"
+                    hx-get="/dashboard/pagination?page={{.Page}}&size={{.Size}}"
+                    hx-trigger="load"
+                    hx-swap="innerHTML"
+                >
+                    <!-- Pagination controls will be dynamically loaded here -->
+                </div>
 
-          <label for="size">Size:</label>
-          <input type="text" id="size" name="size" required />
+                <table class="mx-3 overflow-x-scroll">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Safety Device ID</th>
+                            <th>Type ID</th>
+                            <th>Serial Number</th>
+                            <th>Date of Manufacture</th>
+                            <th>Expire Date</th>
+                            <th>Size</th>
+                            <th>Misc</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody
+                        id="safety-device-body"
+                        hx-get="/api/safety-device?page={{.Page}}&size={{.Size}}"
+                        hx-trigger="load"
+                        hx-swap="innerHTML"
+                    >
+                        <!-- Rows will be dynamically loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-          <label for="misc">Misc:</label>
-          <textarea id="misc" name="misc"></textarea>
+        <div
+            hidden="true"
+            id="popup-content"
+            hx-get="/api/safety-device/1"
+            hx-trigger="load"
+            hx-swap="innerHTML"
+        ></div>
+        <div
+            hidden="true"
+            id="popup-content-2"
+            hx-get="/api/safety-device/2"
+            hx-trigger="load"
+            hx-swap="innerHTML"
+        ></div>
+        <div
+            hidden="true"
+            id="popup-content-polygon"
+            hx-get="/api/safety-device/3"
+            hx-trigger="load"
+            hx-swap="innerHTML"
+        ></div>
 
-          <label for="status">Status:</label>
-          <input type="text" id="status" name="status" required />
+        <!-- The Modal -->
+        <div id="add-device-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Add New Device</h2>
+                <form
+                    id="create-form"
+                    method="POST"
+                    action="/api/safety-device"
+                >
+                    <label for="room">Room:</label>
+                    <input type="text" id="room" name="room" required />
 
-          <button type="submit">Create Fire Extinguisher</button>
-        </form>
-      </div>
-    </div>
+                    <label for="fire_extinguisher_type_id">Type ID:</label>
+                    <input
+                        type="text"
+                        id="fire_extinguisher_type_id"
+                        name="fire_extinguisher_type_id"
+                        required
+                    />
 
-    <script>
-      // hot reload
-      if (window.EventSource) {
-        new EventSource("http://localhost:8090/internal/reload").onmessage =
-          () => {
-            location.reload();
-          };
-      }
-    </script>
-    <script>
-      // Get the modal
-      var modal = document.getElementById("fire-extinguisher-modal");
+                    <label for="serial_number">Serial Number:</label>
+                    <input
+                        type="text"
+                        id="serial_number"
+                        name="serial_number"
+                        required
+                    />
 
-      // Get the button that opens the modal
-      var btn = document.getElementById("add-fire-extinguisher-btn");
+                    <label for="date_of_manufacture"
+                        >Date of Manufacture:</label
+                    >
+                    <input
+                        type="date"
+                        id="date_of_manufacture"
+                        name="date_of_manufacture"
+                        required
+                    />
 
-      // Get the <span> element that closes the modal
-      var span = document.getElementsByClassName("close")[0];
+                    <label for="expire_date">Expire Date:</label>
+                    <input
+                        type="date"
+                        id="expire_date"
+                        name="expire_date"
+                        required
+                    />
 
-      // When the user clicks the button, open the modal
-      btn.onclick = function () {
-        modal.style.display = "block";
-      };
+                    <label for="size">Size:</label>
+                    <input type="text" id="size" name="size" required />
 
-      // When the user clicks on <span> (x), close the modal
-      span.onclick = function () {
-        modal.style.display = "none";
-      };
+                    <label for="misc">Misc:</label>
+                    <textarea id="misc" name="misc"></textarea>
 
-      // When the user clicks anywhere outside of the modal, close it
-      window.onclick = function (event) {
-        if (event.target == modal) {
-          modal.style.display = "none";
-        }
-      };
+                    <label for="status">Status:</label>
+                    <input type="text" id="status" name="status" required />
 
-      document
-        .getElementById("create-form")
-        .addEventListener("submit", async function (event) {
-          event.preventDefault(); // Prevent default form submission
+                    <button type="submit">Create Device</button>
+                </form>
+            </div>
+        </div>
 
-          var formData = new FormData(event.target);
+        <script>
+            // hot reload
+            if (window.EventSource) {
+                new EventSource(
+                    "http://localhost:8090/internal/reload"
+                ).onmessage = () => {
+                    location.reload();
+                };
+            }
+        </script>
+        <!-- Leaflet js-->
+        <script
+            src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""
+        ></script>
 
-          try {
-            let response = await fetch(event.target.action, {
-              method: "POST",
-              body: formData,
+        <script>
+            var map = L.map("map", {
+                center: [65, 55],
+                minZoom: 2,
+                zoom: 3,
             });
 
-            let result = await response.json();
+            var imageUrl = "/static/map.svg";
+            /*
+             */
+            var bounds = [
+                [0, 0],
+                [100, 100],
+            ];
 
-            if (!response.ok) {
-              Toastify({
-                text: result.error || "Error creating fire extinguisher.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                backgroundColor: "linear-gradient(to right, #FF5F6D, #FFC371)",
-              }).showToast();
-            } else {
-              Toastify({
-                text:
-                  result.message || "Fire extinguisher created successfully.",
-                duration: 3000,
-                close: true,
-                gravity: "top",
-                position: "center",
-                backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-              }).showToast();
+            L.imageOverlay(imageUrl, bounds).addTo(map);
 
-              // Close the modal
-              modal.style.display = "none";
+            var svgElement = "static/paths_svg.svg";
 
-              // Insert the new row into the table
-              if (result.rowHTML) {
-                document
-                  .getElementById("fire-extinguishers-body")
-                  .insertAdjacentHTML("beforeend", result.rowHTML);
-              }
-            }
-          } catch (error) {
-            console.error("Error submitting form:", error);
-            Toastify({
-              text: "An unexpected error occurred.",
-              duration: 3000,
-              close: true,
-              gravity: "top",
-              position: "center",
-              backgroundColor: "linear-gradient(to right, #FF5F6D, #FFC371)",
-            }).showToast();
-          }
+            L.svgOverlay(svgElement, bounds, {
+                interactive: true,
+            }).addTo(map);
+
+            // Add a marker
+            L.marker([4.7502, -74.2]).addTo(map);
+
+            /*// Define coordinates as an array
+      var eit_coords = [-39.54715070573233, 176.83765884508824];
+
+      // Initialize the map on the "map" div with a given center and zoom
+      var map = new L.Map("map", {
+        center: new L.LatLng(eit_coords[0], eit_coords[1]),
+        zoom: 17,
+      });
+
+      L.tileLayer(
+        "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png",
+        {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: "abcd",
+          maxZoom: 20,
+        }
+      ).addTo(map);
+
+      const aBlockIcon = L.icon({
+        iconUrl: "https://cdn-icons-png.flaticon.com/512/3595/3595030.png",
+        iconSize: [38, 38],
+      });
+
+      const jBlockIcon = L.icon({
+        iconUrl: "https://cdn-icons-png.flaticon.com/512/9037/9037234.png",
+        iconSize: [38, 38],
+      });
+
+      // A block marker
+      const aBlockMarker = L.marker([-39.54657515537441, 176.83869530855284], {
+        icon: aBlockIcon,
+      }).addTo(map);
+
+      // J block marker
+      const jBlockMarker = L.marker([-39.546680034111176, 176.839290305618], {
+        icon: jBlockIcon,
+      }).addTo(map);
+
+      /* test polygon
+      var polygon = L.polygon([
+        [-39.546710352704835, 176.8385371636207],
+        [-39.546680222627856, 176.83885533638377],
+        [-39.54641765997021, 176.83882104709406],
+        [-39.54644533055425, 176.83850606403286],
+      ]).addTo(map);
+        */
+
+            /* Bind popups to markers
+
+      document
+        .getElementById("popup-content")
+        .addEventListener("htmx:afterOnLoad", function () {
+            aBlockIcon.bindPopup(this.innerHTML);
         });
-    </script>
-  </body>
+
+        
+
+      document
+        .getElementById("popup-content-polygon")
+        .addEventListener("htmx:afterOnLoad", function () {
+          polygon.bindPopup(this.innerHTML);
+        });
+
+      
+      const marker2 = L.marker([-39.54656030609369, 176.8387890588548], {
+        icon: customIcon,
+      }).addTo(map);
+      
+
+      document
+        .getElementById("popup-content-2")
+        .addEventListener("htmx:afterOnLoad", function () {
+            jBlockMarker.bindPopup(this.innerHTML);
+        });
+        */
+        </script>
+        <script>
+            function toggleMap() {
+                var map = document.getElementById("svg2");
+                if (map.style.display === "none") {
+                    map.style.display = "block";
+                } else {
+                    map.style.display = "none";
+                }
+            }
+        </script>
+
+        <script>
+            // Get the modal
+            var modal = document.getElementById("add-device-modal");
+
+            // Get the button that opens the modal
+            var btn = document.getElementById("add-device-btn");
+
+            // Get the <span> element that closes the modal
+            var span = document.getElementsByClassName("close")[0];
+
+            // When the user clicks the button, open the modal
+            btn.onclick = function () {
+                modal.style.display = "block";
+            };
+
+            // When the user clicks on <span> (x), close the modal
+            span.onclick = function () {
+                modal.style.display = "none";
+            };
+
+            // When the user clicks anywhere outside of the modal, close it
+            window.onclick = function (event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+            document
+                .getElementById("create-form")
+                .addEventListener("submit", async function (event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    var formData = new FormData(event.target);
+
+                    try {
+                        let response = await fetch(event.target.action, {
+                            method: "POST",
+                            body: formData,
+                        });
+
+                        let result = await response.json();
+
+                        if (!response.ok) {
+                            Toastify({
+                                text:
+                                    result.error ||
+                                    "Error creating safety device.",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor:
+                                    "linear-gradient(to right, #FF5F6D, #FFC371)",
+                            }).showToast();
+                        } else {
+                            Toastify({
+                                text:
+                                    result.message ||
+                                    "Fire extinguisher created successfully.",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "center",
+                                backgroundColor:
+                                    "linear-gradient(to right, #00b09b, #96c93d)",
+                            }).showToast();
+
+                            // Close the modal
+                            modal.style.display = "none";
+
+                            // Insert the new row into the table
+                            if (result.rowHTML) {
+                                document
+                                    .getElementById("safety-device-body")
+                                    .insertAdjacentHTML(
+                                        "beforeend",
+                                        result.rowHTML
+                                    );
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error submitting form:", error);
+                        Toastify({
+                            text: "An unexpected error occurred.",
+                            duration: 3000,
+                            close: true,
+                            gravity: "top",
+                            position: "center",
+                            backgroundColor:
+                                "linear-gradient(to right, #FF5F6D, #FFC371)",
+                        }).showToast();
+                    }
+                });
+        </script>
+    </body>
 </html>

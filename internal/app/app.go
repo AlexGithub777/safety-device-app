@@ -32,6 +32,9 @@ func NewApp(cfg config.Config) *App {
     // Set up renderer
     router.Renderer = utils.NewTemplateRenderer()
 
+	router.Static("/static", "static")
+
+
     // Middleware
     router.Use(middleware.Logger())  // Log requests
     router.Use(middleware.Recover()) // Recover from panics
