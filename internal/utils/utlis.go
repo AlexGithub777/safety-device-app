@@ -4,11 +4,9 @@ import (
 	"html/template"
 	"io"
 	"log"
-	"math"
 	"net"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -20,53 +18,15 @@ type TemplateRenderer struct {
 
 // NewTemplateRenderer creates a new TemplateRenderer
 func NewTemplateRenderer() *TemplateRenderer {
-    funcMap := FuncMap()
-    rootDir, _ := os.Getwd()
-    templateDir := filepath.Join(rootDir, "templates", "*.html")
-    t := template.Must(template.New("").Funcs(funcMap).ParseGlob(templateDir))
-    return &TemplateRenderer{templates: t}
+	rootDir, _ := os.Getwd()
+	templateDir := filepath.Join(rootDir, "templates", "*.html")
+	t := template.Must(template.New("").ParseGlob(templateDir))
+	return &TemplateRenderer{templates: t}
 }
-
 
 // Render implements echo.Renderer
 func (tr *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
 	return tr.templates.ExecuteTemplate(w, name, data)
-}
-
-// FormatDate formats a time.Time to dd-mm-yyyy
-func FormatDate(t time.Time) string {
-	return t.Format("02-01-2006")
-}
-
-func FuncMap() template.FuncMap {
-	return template.FuncMap{
-		"formatDate": FormatDate,
-		"add":        add,
-		"sub":        sub,
-		"mul":        mul,
-		"div":        div,
-		"ceil":       math.Ceil,
-	}
-}
-
-func add(a, b int) int {
-	return a + b
-}
-
-func sub(a, b int) int {
-	return a - b
-}
-
-func mul(a, b int) int {
-	return a * b
-}
-
-// Define the div function
-func div(x, y int) int {
-	if y == 0 {
-		return 0 // Handle division by zero
-	}
-	return x / y
 }
 
 func GetLocalIP() net.IP {
