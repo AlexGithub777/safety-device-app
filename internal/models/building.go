@@ -1,8 +1,8 @@
 package models
 
+// BuildingT represents the buildings in each site
 type Building struct {
-	BuildingID int    `json:"building_id"`
-	SiteID     int    `json:"site_id"`
-	Name       string `json:"name"`
-	Address    string `json:"address"`
+	BuildingID  int    `json:"building_id"`
+	SiteID      int    `json:"site_id"`
+	BuildingCode string `json:"building_code"`
 }
