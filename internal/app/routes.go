@@ -12,6 +12,7 @@ func (a *App) initRoutes() {
 	a.Router.GET("/api/extinguisher-type", a.HandleGetAllExtinguisherTypes)
 	a.Router.GET("/api/room", a.HandleGetAllRooms)
 	a.Router.GET("/api/building", a.HandleGetAllBuildings)
+	a.Router.GET("/api/site", a.HandleGetAllSites)
 	//a.Router.POST("/api/emergency-device", a.HandleAddDevice)
 
 }

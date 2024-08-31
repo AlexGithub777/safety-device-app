@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/AlexGithub777/safety-device-app/internal/models"
@@ -197,19 +196,16 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 	var args []interface{}
 
 	// Define the base query
-	query = ` SELECT r.roomid, r.buildingid, r.roomcode
-			  FROM roomT r`
+	query = ` SELECT r.roomid, r.buildingid, r.roomcode, b.buildingcode, s.sitename
+              FROM roomT r
+              JOIN buildingT b ON r.buildingid = b.buildingid
+              JOIN siteT s ON b.siteid = s.siteid`
 
 	// Add filtering by building code if provided
 	if buildingId != "" {
-		query += `
-		JOIN buildingT b ON r.buildingid = b.buildingid
-		WHERE b.buildingcode = $1
-		`
+		query += ` WHERE b.buildingcode = $1`
 		args = append(args, buildingId)
 	}
-
-	fmt.Println(query)
 
 	// Prepare and execute the query
 	rows, err := db.Query(query, args...)
@@ -228,6 +224,8 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 			&room.RoomID,
 			&room.BuildingID,
 			&room.RoomCode,
+			&room.BuildingCode, // Assuming you have added this field to the Room model
+			&room.SiteName,     // Assuming you have added this field to the Room model
 		)
 		if err != nil {
 			return nil, err
@@ -241,10 +239,11 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 
 func (db *DB) GetAllBuildings() ([]models.Building, error) {
 	query := `
-	SELECT buildingid, buildingcode
-	FROM buildingT
-	ORDER BY buildingcode
-	`
+    SELECT b.buildingid, b.buildingcode, b.siteid, s.sitename
+    FROM buildingT b
+    JOIN siteT s ON b.siteid = s.siteid
+    ORDER BY b.buildingcode
+    `
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -260,6 +259,8 @@ func (db *DB) GetAllBuildings() ([]models.Building, error) {
 		err := rows.Scan(
 			&building.BuildingID,
 			&building.BuildingCode,
+			&building.SiteID,
+			&building.SiteName, // Assuming you have added this field to the Building model
 		)
 		if err != nil {
 			return nil, err
@@ -269,4 +270,39 @@ func (db *DB) GetAllBuildings() ([]models.Building, error) {
 	}
 
 	return buildings, nil
+}
+
+func (db *DB) GetAllSites() ([]models.Site, error) {
+	query := `
+	SELECT siteid, sitename, siteaddress
+	FROM siteT
+	ORDER BY sitename
+	`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var sites []models.Site
+
+	// Scan the results
+	for rows.Next() {
+		var site models.Site
+		err := rows.Scan(
+			&site.SiteID,
+			&site.SiteName,
+			&site.SiteAddress,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		sites = append(sites, site)
+	}
+
+	return sites, nil
+
 }

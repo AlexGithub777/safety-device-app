@@ -62,6 +62,16 @@ func (a *App) HandleGetAllBuildings(c echo.Context) error {
 	return c.JSON(http.StatusOK, buildings)
 }
 
+func (a *App) HandleGetAllSites(c echo.Context) error {
+	sites, err := a.DB.GetAllSites()
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, sites)
+}
+
 /*
 func (a *App) HandleAddDevice(c echo.Context) error {
     // Parse form data
