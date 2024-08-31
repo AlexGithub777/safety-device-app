@@ -71,18 +71,23 @@ func (db *DB) FetchAllDevices(buildingCode string) ([]models.EmergencyDevice, er
 		// If any of the following fields are null, replace them with a default value
 		if !device.ExtinguisherTypeName.Valid {
 			device.ExtinguisherTypeName.String = "N/A"
+			device.ExtinguisherTypeName.Valid = false
 		}
 		if !device.SerialNumber.Valid {
 			device.SerialNumber.String = "N/A"
+			device.SerialNumber.Valid = false
 		}
 		if !device.Description.Valid {
 			device.Description.String = "N/A"
+			device.Description.Valid = false
 		}
 		if !device.Size.Valid {
 			device.Size.String = "N/A"
+			device.Size.Valid = false
 		}
 		if !device.Status.Valid {
 			device.Status.String = "N/A"
+			device.Status.Valid = false
 		}
 
 		// Handle dates and calculate expiry and next inspection dates
