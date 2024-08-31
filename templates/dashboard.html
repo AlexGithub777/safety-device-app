@@ -76,7 +76,11 @@
                 <button class="btn btn-primary" onclick="toggleMap()">
                     Toggle Map
                 </button>
-                <button class="btn btn-success" id="add-device-btn">
+                <button
+                    class="btn btn-success"
+                    id="add-device-btn"
+                    onclick="addDevice()"
+                >
                     Add Device
                 </button>
             </div>
@@ -155,9 +159,8 @@
                     location.reload();
                 };
             }
-        </script>
 
-        <script>
+            // Leaflet map setup
             // SVG's intrinsic width/height or viewBox values
             const svgWidth = 561.568;
             const svgHeight = 962.941;
@@ -199,7 +202,7 @@
                         // Add a click event listener to the rectangle
                         rectangle.on("click", () => {
                             // Fetch devices for the clicked building
-                            fetchDevices(building.name); // Pass the building code to fetchDevices
+                            GetAllDevices(building.name); // Pass the building code to fetchDevices
                             console.log("Building clicked:", building.name);
                         });
                     });
@@ -207,7 +210,7 @@
 
             map.fitBounds(bounds);
 
-            async function fetchDevices(buildingCode = "") {
+            async function GetAllDevices(buildingCode = "") {
                 try {
                     const url = buildingCode
                         ? `/api/emergency-device?building_code=${buildingCode}`
@@ -312,7 +315,7 @@
             }
 
             // Initial fetch without filtering
-            fetchDevices();
+            GetAllDevices();
 
             function editDevice(deviceId) {
                 console.log(`Edit device with ID: ${deviceId}`);

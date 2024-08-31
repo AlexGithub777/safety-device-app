@@ -7,7 +7,7 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 )
 
-func (db *DB) FetchAllDevices(buildingCode string) ([]models.EmergencyDevice, error) {
+func (db *DB) GetAllDevices(buildingCode string) ([]models.EmergencyDevice, error) {
 	var query string
 	var args []interface{}
 

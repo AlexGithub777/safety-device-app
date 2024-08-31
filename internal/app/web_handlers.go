@@ -7,7 +7,7 @@ import (
 )
 
 // HomeHandler serves the home page
-func (a *App) HomeHandler(c echo.Context) error {
+func (a *App) HandleHome(c echo.Context) error {
 	return c.Render(http.StatusOK, "index.html", nil)
 }
 

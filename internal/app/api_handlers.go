@@ -8,10 +8,10 @@ import (
 
 // GetAllDevices fetches all emergency devices from the database with optional filtering by building code
 // and returns the results as JSON
-func (a *App) GetAllDevices(c echo.Context) error {
+func (a *App) HandleGetAllDevices(c echo.Context) error {
 	buildingCode := c.QueryParam("building_code")
 
-	emergencyDevices, err := a.DB.FetchAllDevices(buildingCode)
+	emergencyDevices, err := a.DB.GetAllDevices(buildingCode)
 	if err != nil {
 		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
 	}

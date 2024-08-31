@@ -32,6 +32,7 @@ func NewApp(cfg config.Config) *App {
 	// Set up renderer
 	router.Renderer = utils.NewTemplateRenderer()
 
+	// Serve static files
 	router.Static("/static", "static")
 
 	// Middleware
