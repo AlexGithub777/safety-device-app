@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestFetchAllDevices(t *testing.T) {
+func TestGetAllDevices(t *testing.T) {
 	testCases := []struct {
 		name            string
 		expectedDevices []models.EmergencyDevice
@@ -179,7 +179,7 @@ func TestFetchAllDevices(t *testing.T) {
 				mock.ExpectQuery("^SELECT (.+) FROM emergency_deviceT").WillReturnRows(rows)
 			}
 
-			actualDevices, err := dbInstance.FetchAllDevices("your_building_code")
+			actualDevices, err := dbInstance.GetAllDevices("your_building_code")
 
 			if tc.expectedError != nil {
 				assert.Error(t, err)
