@@ -143,6 +143,164 @@
             </div>
         </div>
 
+        <!-- Add Device Modal -->
+        <div id="addModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Device</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-control">
+                            <div class="mb-3">
+                                <label for="deviceType" class="form-label"
+                                    >Device Type</label
+                                >
+                                <select
+                                    class="form-select"
+                                    id="status"
+                                    aria-label="Select status"
+                                >
+                                    <!-- Options will be populated here -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="extinguisherType" class="form-label"
+                                    >Extinguisher Type</label
+                                >
+                                <select
+                                    class="form-select"
+                                    id="extinguisherType"
+                                    aria-label="Select extinguisher type"
+                                >
+                                    <!-- Options will be populated here -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="building" class="form-label"
+                                    >Building</label
+                                >
+                                <select
+                                    class="form-select"
+                                    id="building"
+                                    aria-label="Select building"
+                                >
+                                    <!-- Options will be populated here -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="room" class="form-label"
+                                    >Room</label
+                                >
+                                <select
+                                    class="form-select"
+                                    id="room"
+                                    aria-label="Select room"
+                                >
+                                    <!-- Options will be populated here -->
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="serialNumber" class="form-label"
+                                    >Serial Number</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="serialNumber"
+                                    placeholder="Enter serial number"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label for="manufactureDate" class="form-label"
+                                    >Manufacture Date</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="manufactureDate"
+                                />
+                            </div>
+                            <!--
+                            <div class="mb-3">
+                                <label for="expireDate" class="form-label"
+                                    >Expire Date</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="expireDate"
+                                />
+                            </div>
+                            -->
+                            <div class="mb-3">
+                                <label
+                                    for="lastInspectionDate"
+                                    class="form-label"
+                                    >Last Inspection Date</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="lastInspectionDate"
+                                />
+                            </div>
+                            <!--
+                            <div class="mb-3">
+                                <label
+                                    for="nextInspectionDate"
+                                    class="form-label"
+                                    >Next Inspection Date</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="nextInspectionDate"
+                                />
+                            </div>
+                            -->
+                            <div class="mb-3">
+                                <label for="size" class="form-label"
+                                    >Size</label
+                                >
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="size"
+                                    placeholder="Enter size"
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label"
+                                    >Status</label
+                                >
+                                <select
+                                    class="form-select"
+                                    id="status"
+                                    aria-label="Select status"
+                                >
+                                    <option selected>Active</option>
+                                    <option>Expired</option>
+                                    <option>Inspection Due</option>
+                                    <option>Inactive</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-default"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Leaflet js-->
         <script
             src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -317,6 +475,108 @@
             // Initial fetch without filtering
             GetAllDevices();
 
+            function addDevice() {
+                // Fetch the device types and populate the select options
+                fetch("/api/emergency-device-type")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const select = document.getElementById("status");
+                        // Clear previous options
+                        select.innerHTML = "";
+                        // Add a default option and select it
+                        const defaultOption = document.createElement("option");
+                        defaultOption.text = "Select Device type";
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        select.add(defaultOption);
+                        data.forEach((item) => {
+                            const option = document.createElement("option");
+                            option.text = item.emergency_device_type_name; // Set the text of the option
+                            select.add(option);
+                        });
+                    })
+                    .catch((error) => console.error("Error:", error));
+
+                // Fetch the extinguisher types and populate the select options
+                fetch("/api/extinguisher-type")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const select =
+                            document.getElementById("extinguisherType");
+                        // Clear previous options
+                        select.innerHTML = "";
+                        // Add a default option and select it
+                        const defaultOption = document.createElement("option");
+                        defaultOption.text = "Select Extinguisher Type";
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        select.add(defaultOption);
+                        data.forEach((item) => {
+                            const option = document.createElement("option");
+                            option.text = item.extinguisher_type_name; // Set the text of the option
+                            select.add(option);
+                        });
+                    })
+                    .catch((error) => console.error("Error:", error));
+
+                // Function to populate the room dropdown
+                function populateRooms(buildingId) {
+                    // Fetch the rooms for the selected building and populate the select options
+                    fetch(`/api/room?buildingId=${buildingId}`)
+                        .then((response) => response.json())
+                        .then((data) => {
+                            const select = document.getElementById("room");
+                            // Clear previous options
+                            select.innerHTML = "";
+                            // Add a default option and select it
+                            const defaultOption =
+                                document.createElement("option");
+                            defaultOption.text = "Select Room";
+                            defaultOption.selected = true;
+                            defaultOption.disabled = true;
+                            select.add(defaultOption);
+                            data.forEach((item) => {
+                                const option = document.createElement("option");
+                                option.text = item.room_name; // Set the text of the option
+                                select.add(option);
+                            });
+                        })
+                        .catch((error) => console.error("Error:", error));
+                }
+
+                // Fetch the buildings and populate the select options
+                fetch("/api/building")
+                    .then((response) => response.json())
+                    .then((data) => {
+                        const select = document.getElementById("building");
+                        // Clear previous options
+                        select.innerHTML = "";
+                        // Add a default option and select it
+                        const defaultOption = document.createElement("option");
+                        defaultOption.text = "Select Building";
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        select.add(defaultOption);
+                        data.forEach((item) => {
+                            const option = document.createElement("option");
+                            option.text = item.building_code; // Set the text of the option
+                            select.add(option);
+                        });
+                        // Populate the room dropdown for the first building
+                        if (data.length > 0) {
+                            populateRooms(data[0].building_code);
+                        }
+                        // Add event listener to the building select
+                        select.addEventListener("change", function () {
+                            populateRooms(this.value);
+                        });
+                    })
+                    .catch((error) => console.error("Error:", error));
+
+                // Show the modal after populating the select options
+                $("#addModal").modal("show");
+            }
+
             function editDevice(deviceId) {
                 console.log(`Edit device with ID: ${deviceId}`);
                 // Add your edit logic here
@@ -361,75 +621,6 @@
                     deviceList.classList.add("col-lg-12");
                 }
             }
-        </script>
-
-        <script>
-            document
-                .getElementById("create-form")
-                .addEventListener("submit", async function (event) {
-                    event.preventDefault(); // Prevent default form submission
-
-                    var formData = new FormData(event.target);
-
-                    try {
-                        let response = await fetch(event.target.action, {
-                            method: "POST",
-                            body: formData,
-                        });
-
-                        let result = await response.json();
-
-                        if (!response.ok) {
-                            Toastify({
-                                text:
-                                    result.error ||
-                                    "Error creating safety device.",
-                                duration: 3000,
-                                close: true,
-                                gravity: "top",
-                                position: "center",
-                                backgroundColor:
-                                    "linear-gradient(to right, #FF5F6D, #FFC371)",
-                            }).showToast();
-                        } else {
-                            Toastify({
-                                text:
-                                    result.message ||
-                                    "Fire extinguisher created successfully.",
-                                duration: 3000,
-                                close: true,
-                                gravity: "top",
-                                position: "center",
-                                backgroundColor:
-                                    "linear-gradient(to right, #00b09b, #96c93d)",
-                            }).showToast();
-
-                            // Close the modal
-                            modal.style.display = "none";
-
-                            // Insert the new row into the table
-                            if (result.rowHTML) {
-                                document
-                                    .getElementById("emergency-device-body")
-                                    .insertAdjacentHTML(
-                                        "beforeend",
-                                        result.rowHTML
-                                    );
-                            }
-                        }
-                    } catch (error) {
-                        console.error("Error submitting form:", error);
-                        Toastify({
-                            text: "An unexpected error occurred.",
-                            duration: 3000,
-                            close: true,
-                            gravity: "top",
-                            position: "center",
-                            backgroundColor:
-                                "linear-gradient(to right, #FF5F6D, #FFC371)",
-                        }).showToast();
-                    }
-                });
         </script>
     </body>
 </html>

@@ -7,6 +7,10 @@ func (a *App) initRoutes() {
 
 	// API routes
 	a.Router.GET("/api/emergency-device", a.HandleGetAllDevices)
+	a.Router.GET("/api/emergency-device-type", a.HandleGetAllDeviceTypes)
+	a.Router.GET("/api/extinguisher-type", a.HandleGetAllExtinguisherTypes)
+	a.Router.GET("/api/room", a.HandleGetAllRooms)
+	a.Router.GET("/api/building", a.HandleGetAllBuildings)
 	//a.Router.POST("/api/emergency-device", a.HandleAddDevice)
 
 }
