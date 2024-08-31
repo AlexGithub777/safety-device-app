@@ -4,6 +4,7 @@ func (a *App) initRoutes() {
 	// Web routes
 	a.Router.GET("/", a.HandleHome)
 	a.Router.GET("/dashboard", a.HandleDashboard)
+	a.Router.GET("/admin", a.HandleAdmin)
 
 	// API routes
 	a.Router.GET("/api/emergency-device", a.HandleGetAllDevices)

@@ -4,5 +4,5 @@ package models
 type Room struct {
 	RoomID     int    `json:"room_id"`
 	BuildingID int    `json:"building_id"`
-	RoomName   string `json:"room_name"`
+	RoomCode   string `json:"room_code"`
 }

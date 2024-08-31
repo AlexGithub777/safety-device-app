@@ -18,7 +18,7 @@ func (db *DB) GetAllDevices(buildingCode string) ([]models.EmergencyDevice, erro
         ed.emergencydeviceid, 
         edt.emergencydevicetypename,
         et.extinguishertypename AS ExtinguisherTypeName,
-        r.roomname,
+        r.roomcode,
         ed.serialnumber,
         ed.manufacturedate,
         ed.lastinspectiondate,
@@ -57,7 +57,7 @@ func (db *DB) GetAllDevices(buildingCode string) ([]models.EmergencyDevice, erro
 			&device.EmergencyDeviceID,
 			&device.EmergencyDeviceTypeName,
 			&device.ExtinguisherTypeName,
-			&device.RoomName,
+			&device.RoomCode,
 			&device.SerialNumber,
 			&device.ManufactureDate,
 			&device.LastInspectionDate,
@@ -197,7 +197,7 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 	var args []interface{}
 
 	// Define the base query
-	query = ` SELECT r.roomid, r.buildingid, r.roomname
+	query = ` SELECT r.roomid, r.buildingid, r.roomcode
 			  FROM roomT r`
 
 	// Add filtering by building code if provided
@@ -227,7 +227,7 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 		err := rows.Scan(
 			&room.RoomID,
 			&room.BuildingID,
-			&room.RoomName,
+			&room.RoomCode,
 		)
 		if err != nil {
 			return nil, err

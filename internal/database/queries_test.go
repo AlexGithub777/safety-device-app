@@ -26,7 +26,7 @@ func TestGetAllDevices(t *testing.T) {
 					EmergencyDeviceID:       1,
 					EmergencyDeviceTypeName: "TypeA",
 					ExtinguisherTypeName:    sql.NullString{String: "ExtinguisherA", Valid: true},
-					RoomName:                "Room101",
+					RoomCode:                "Room101",
 					SerialNumber:            sql.NullString{String: "SN123", Valid: true},
 					ManufactureDate:         sql.NullTime{Time: time.Date(2024, time.August, 1, 0, 0, 0, 0, time.UTC), Valid: true},
 					LastInspectionDate:      sql.NullTime{Time: time.Date(2024, time.July, 15, 0, 0, 0, 0, time.UTC), Valid: true},
@@ -45,7 +45,7 @@ func TestGetAllDevices(t *testing.T) {
 					EmergencyDeviceID:       2,
 					EmergencyDeviceTypeName: "TypeB",
 					ExtinguisherTypeName:    sql.NullString{Valid: false, String: "N/A"},
-					RoomName:                "Room102",
+					RoomCode:                "Room102",
 					SerialNumber:            sql.NullString{Valid: false, String: "N/A"},
 					ManufactureDate:         sql.NullTime{Valid: false},
 					LastInspectionDate:      sql.NullTime{Valid: false},
@@ -64,7 +64,7 @@ func TestGetAllDevices(t *testing.T) {
 					EmergencyDeviceID:       3,
 					EmergencyDeviceTypeName: "TypeC",
 					ExtinguisherTypeName:    sql.NullString{String: "ExtinguisherD", Valid: true},
-					RoomName:                "C103",
+					RoomCode:                "C103",
 					SerialNumber:            sql.NullString{String: "SN456", Valid: true},
 					ManufactureDate:         sql.NullTime{Valid: false},
 					LastInspectionDate:      sql.NullTime{Time: time.Date(2024, time.July, 15, 0, 0, 0, 0, time.UTC), Valid: true},
@@ -83,7 +83,7 @@ func TestGetAllDevices(t *testing.T) {
 					EmergencyDeviceID:       4,
 					EmergencyDeviceTypeName: "TypeD",
 					ExtinguisherTypeName:    sql.NullString{String: "ExtinguisherE", Valid: true},
-					RoomName:                "D104",
+					RoomCode:                "D104",
 					SerialNumber:            sql.NullString{String: "SN789", Valid: true},
 					ManufactureDate:         sql.NullTime{Time: time.Date(2024, time.August, 1, 0, 0, 0, 0, time.UTC), Valid: true},
 					LastInspectionDate:      sql.NullTime{Valid: false},
@@ -166,7 +166,7 @@ func TestGetAllDevices(t *testing.T) {
 						device.EmergencyDeviceID,
 						device.EmergencyDeviceTypeName,
 						device.ExtinguisherTypeName,
-						device.RoomName,
+						device.RoomCode,
 						device.SerialNumber,
 						device.ManufactureDate,
 						device.LastInspectionDate,
@@ -194,7 +194,7 @@ func TestGetAllDevices(t *testing.T) {
 					assert.Equal(t, expectedDevice.EmergencyDeviceID, actualDevice.EmergencyDeviceID, "EmergencyDeviceID does not match")
 					assert.Equal(t, expectedDevice.EmergencyDeviceTypeName, actualDevice.EmergencyDeviceTypeName, "EmergencyDeviceTypeName does not match")
 					assert.Equal(t, expectedDevice.ExtinguisherTypeName, actualDevice.ExtinguisherTypeName, "ExtinguisherTypeName does not match")
-					assert.Equal(t, expectedDevice.RoomName, actualDevice.RoomName, "RoomName does not match")
+					assert.Equal(t, expectedDevice.RoomCode, actualDevice.RoomCode, "RoomCode does not match")
 					assert.Equal(t, expectedDevice.SerialNumber, actualDevice.SerialNumber, "SerialNumber does not match")
 					assert.Equal(t, expectedDevice.ManufactureDate, actualDevice.ManufactureDate, "ManufactureDate does not match")
 					assert.Equal(t, expectedDevice.LastInspectionDate, actualDevice.LastInspectionDate, "LastInspectionDate does not match")
