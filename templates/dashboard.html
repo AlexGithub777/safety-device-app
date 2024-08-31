@@ -425,7 +425,7 @@
                     <tr>
                         <td>${device.emergency_device_type_name}</td>
                         <td>${device.extinguisher_type_name.String}</td>
-                        <td>${device.room_name}</td>
+                        <td>${device.room_code}</td>
                         <td>${device.serial_number.String}</td>
                         <td>${formatDateMonthYear(
                             device.manufacture_date.Time
@@ -537,7 +537,7 @@
                             select.add(defaultOption);
                             data.forEach((item) => {
                                 const option = document.createElement("option");
-                                option.text = item.room_name; // Set the text of the option
+                                option.text = item.room_code; // Set the text of the option
                                 select.add(option);
                             });
                         })
