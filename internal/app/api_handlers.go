@@ -20,6 +20,48 @@ func (a *App) HandleGetAllDevices(c echo.Context) error {
 	return c.JSON(http.StatusOK, emergencyDevices)
 }
 
+func (a *App) HandleGetAllDeviceTypes(c echo.Context) error {
+	emergencyDeviceTypes, err := a.DB.GetAllDeviceTypes()
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, emergencyDeviceTypes)
+}
+
+func (a *App) HandleGetAllExtinguisherTypes(c echo.Context) error {
+	extinguisherTypes, err := a.DB.GetAllExtinguisherTypes()
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, extinguisherTypes)
+}
+
+func (a *App) HandleGetAllRooms(c echo.Context) error {
+	buildingId := c.QueryParam("buildingId")
+
+	rooms, err := a.DB.GetAllRooms(buildingId)
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, rooms)
+}
+
+func (a *App) HandleGetAllBuildings(c echo.Context) error {
+	buildings, err := a.DB.GetAllBuildings()
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, buildings)
+}
+
 /*
 func (a *App) HandleAddDevice(c echo.Context) error {
     // Parse form data
