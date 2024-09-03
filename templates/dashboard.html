@@ -52,12 +52,60 @@
             }
 
             /* Device list container */
-            .device-list {
-                overflow-y: auto;
-            }
 
             #map {
                 border-radius: 8px;
+            }
+
+            @media screen and (max-width: 1009px) {
+                body table thead {
+                    display: none;
+                }
+
+                body table tr {
+                    margin-bottom: 10px;
+                    display: block;
+                    border-bottom: 2px solid #ddd;
+                }
+
+                body table td {
+                    display: block;
+                    text-align: right;
+                    font-size: 13px;
+                    border-bottom: 1px dotted #ccc;
+                }
+
+                body table td::before {
+                    content: attr(data-label);
+                    float: left;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                }
+
+                body table td:last-child {
+                    border-bottom: 0;
+                }
+
+                body .action-buttons {
+                    display: block;
+                    text-align: right;
+                }
+            }
+
+            @media screen and (min-width: 1010px) {
+                body table td,
+                body table th {
+                    display: table-cell;
+                    text-align: left;
+                }
+
+                body .action-buttons {
+                    display: flex;
+                    justify-content: space-around;
+                    text-align: left;
+                    gap: 2px;
+                    flex-wrap: nowrap;
+                }
             }
         </style>
     </head>
@@ -76,45 +124,48 @@
                 <button class="btn btn-primary" onclick="toggleMap()">
                     Toggle Map
                 </button>
-                <button
-                    class="btn btn-success"
-                    id="add-device-btn"
-                    onclick="addDevice()"
-                >
-                    Add Device
-                </button>
             </div>
 
             <div class="row mx-lg-2">
                 <!-- Map Section -->
-                <div id="map" class="col-12 col-lg-4 mb-4"></div>
+                <div id="map" class="col-12 col-xxl-3"></div>
 
                 <!-- Device List Section -->
-                <div class="device-list col-12 col-lg-8">
+                <div class="device-list col-xxl-9">
+                    <div class="d-flex justify-content-between m-1">
+                        <p class="h3 text-lg-center">Emergency Devices</p>
+                        <button
+                            class="btn btn-success"
+                            id="add-device-btn"
+                            onclick="addDevice()"
+                        >
+                            Add Device
+                        </button>
+                    </div>
                     <!-- Bootstrap Table -->
-                    <p class="h3 text-lg-center">Emergency Devices</p>
-                    <table
-                        class="table table-striped table-hover table-responsive"
-                    >
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Device Type</th>
-                                <th>Extinguisher Type</th>
-                                <th>Room</th>
-                                <th>Serial Number</th>
-                                <th>Manufacture Date</th>
-                                <th>Expire Date</th>
-                                <th>Last Inspection Date</th>
-                                <th>Next Inspection Date</th>
-                                <th>Size</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="emergency-device-body">
-                            <!-- Rows will be dynamically loaded here -->
-                        </tbody>
-                    </table>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>Device Type</th>
+                                    <th>Extinguisher Type</th>
+                                    <th>Room</th>
+                                    <th>Serial Number</th>
+                                    <th>Manufacture Date</th>
+                                    <th>Expire Date</th>
+                                    <th>Last Inspection Date</th>
+                                    <th>Next Inspection Date</th>
+                                    <th>Size</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="emergency-device-body">
+                                <!-- Rows will be dynamically loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -421,50 +472,57 @@
                                     : "text-bg-warning";
 
                             // Return the row with formatted dates
+                            // Return the row with formatted dates and data-* attributes
                             return `
-                    <tr>
-                        <td>${device.emergency_device_type_name}</td>
-                        <td>${device.extinguisher_type_name.String}</td>
-                        <td>${device.room_code}</td>
-                        <td>${device.serial_number.String}</td>
-                        <td>${formatDateMonthYear(
-                            device.manufacture_date.Time
-                        )}</td>
-                        <td>${formatDateMonthYear(device.expire_date.Time)}</td>
-                        <td>${formatDateFull(
-                            device.last_inspection_date.Time
-                        )}</td>
-                        <td>${formatDateFull(
-                            device.next_inspection_date.Time
-                        )}</td>
-                        <td>${device.size.String}</td>
-                        <td><span class="badge ${badgeClass}">${
+                                <tr>
+                                    <td data-label="Device Type">${
+                                        device.emergency_device_type_name
+                                    }</td>
+                                    <td data-label="Extinguisher Type">${
+                                        device.extinguisher_type_name.String
+                                    }</td>
+                                    <td data-label="Room">${
+                                        device.room_code
+                                    }</td>
+                                    <td data-label="Serial Number">${
+                                        device.serial_number.String
+                                    }</td>
+                                    <td data-label="Manufacture Date">${formatDateMonthYear(
+                                        device.manufacture_date.Time
+                                    )}</td>
+                                    <td data-label="Expire Date">${formatDateMonthYear(
+                                        device.expire_date.Time
+                                    )}</td>
+                                    <td data-label="Last Inspection Date">${formatDateFull(
+                                        device.last_inspection_date.Time
+                                    )}</td>
+                                    <td data-label="Next Inspection Date">${formatDateFull(
+                                        device.next_inspection_date.Time
+                                    )}</td>
+                                    <td data-label="Size">${
+                                        device.size.String
+                                    }</td>
+                                    <td data-label="Status"><span class="badge ${badgeClass}">${
                                 device.status.String
                             }</span></td>
                         <td>
-                            <div class="d-flex justify-content-around align-items-center gap-2">
-                                <button class="btn btn-secondary" onclick="inspectDevice(${
-                                    device.emergency_device_id
-                                })">
-                                    Inspect
-                                </button>
-                                <button class="btn btn-primary" onclick="DeviceNotes('${
-                                    device.description.String
-                                }')">Notes</button>
-                                <button class="btn btn-warning" onclick="editDevice(${
-                                    device.emergency_device_id
-                                })">
-                                    Edit
-                                </button>
-                                <button class="btn btn-danger" onclick="deleteDevice(${
-                                    device.emergency_device_id
-                                })">
-                                    Delete
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                            <div class="action-buttons">
+                                            <button class="btn btn-secondary" onclick="inspectDevice(${
+                                                device.emergency_device_id
+                                            })">Inspect</button>
+                                            <button class="btn btn-primary" onclick="DeviceNotes('${
+                                                device.description.String
+                                            }')">Notes</button>
+                                            <button class="btn btn-warning" onclick="editDevice(${
+                                                device.emergency_device_id
+                                            })">Edit</button>
+                                            <button class="btn btn-danger" onclick="deleteDevice(${
+                                                device.emergency_device_id
+                                            })">Delete</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
                         })
                         .join("");
                 } catch (err) {
@@ -609,16 +667,16 @@
 
                 // Check if the map is currently visible
                 if (map.classList.contains("d-none")) {
-                    // Map is hidden, show the map and set device list back to col-8 width
+                    // Map is hidden, show the map and set device list back to col-xxl-9 width
                     map.classList.remove("d-none");
-                    map.classList.add("col-lg-4");
-                    deviceList.classList.remove("col-lg-12");
-                    deviceList.classList.add("col-lg-8");
+                    map.classList.add("col-xxl-3");
+                    deviceList.classList.remove("col-xxl-12");
+                    deviceList.classList.add("col-xxl-9");
                 } else {
                     // Map is visible, hide the map and make device list 100% width
                     map.classList.add("d-none");
-                    deviceList.classList.remove("col-lg-8");
-                    deviceList.classList.add("col-lg-12");
+                    deviceList.classList.remove("col-xxl-9");
+                    deviceList.classList.add("col-xxl-12");
                 }
             }
         </script>
