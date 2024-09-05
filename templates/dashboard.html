@@ -42,6 +42,11 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
         ></script>
+        <!-- Font Awesome -->
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+            rel="stylesheet"
+        />
         <style>
             /* Map container styling */
             #map {
@@ -111,19 +116,45 @@
     </head>
     <body>
         <header>
-            <div class="fluid-container">
-                <p class="h1 text-center py-3 bg-dark text-light">
+            <div class="fluid-container bg-primary">
+                <p class="h1 text-center py-3 text-light">
                     Emergency Device Management System
                 </p>
+
+                <div class="d-flex justify-content-between">
+                    <button
+                        onclick="window.location.href='/admin'"
+                        class="btn btn-primary me-2"
+                    >
+                        <i class="fa-solid fa-gear"></i> Admin Settings
+                    </button>
+                    <div>
+                        <button class="btn btn-primary me-2">
+                            <i class="fa-regular fa-user"></i> Account
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+
+                        <button class="btn btn-primary me-2">
+                            <i class="fa-regular fa-bell"></i> Notifications
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
         <div class="container-fluid">
             <!-- Toggle Map button -->
-            <div class="text-center mb-4">
-                <button class="btn btn-primary" onclick="toggleMap()">
+
+            <div class="my-4 d-flex justify-content-between">
+                <button class="btn btn-primary me-2" onclick="toggleMap()">
                     Toggle Map
                 </button>
+                <div class="">
+                    <button class="btn btn-success" onclick="addDevice()">
+                        Add Device
+                    </button>
+                </div>
             </div>
 
             <div class="row mx-lg-2">
@@ -132,15 +163,42 @@
 
                 <!-- Device List Section -->
                 <div class="device-list col-xxl-9">
+                    <div class="d-flex justify-content-end"></div>
+                    <div>
+                        <div class="input-group mb-3">
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="search"
+                                placeholder="Search for devices.."
+                            />
+                            <button
+                                class="btn btn-secondary"
+                                type="button"
+                                id="search-button"
+                            >
+                                Search
+                            </button>
+                        </div>
+                    </div>
                     <div class="d-flex justify-content-between m-1">
-                        <p class="h3 text-lg-center">Emergency Devices</p>
-                        <button
-                            class="btn btn-success"
-                            id="add-device-btn"
-                            onclick="addDevice()"
-                        >
-                            Add Device
-                        </button>
+                        <i class="mx-2 fa-solid fa-filter"></i>
+                        <select class="form-select mx-2">
+                            <option selected>Device Type</option>
+                            <!-- Dropdown options for the first dropdown -->
+                        </select>
+                        <select class="form-select mx-2">
+                            <option selected>Building</option>
+                            <!-- Dropdown options for the second dropdown -->
+                        </select>
+                        <select class="form-select mx-2">
+                            <option selected>Room</option>
+                            <!-- Dropdown options for the third dropdown -->
+                        </select>
+                        <select class="form-select ms-2">
+                            <option selected>Status</option>
+                            <!-- Dropdown options for the fourth dropdown -->
+                        </select>
                     </div>
                     <!-- Bootstrap Table -->
 
@@ -165,6 +223,55 @@
                                 <!-- Rows will be dynamically loaded here -->
                             </tbody>
                         </table>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <div class="dropdown mb-3">
+                                <label for="rowsPerPage" class=""
+                                    >Rows per page:</label
+                                >
+                                <select class="form-select" id="rowsPerPage">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div>
+                                <nav aria-label="Page navigation">
+                                    <ul
+                                        class="pagination justify-content-center mb-2"
+                                    >
+                                        <li class="page-item disabled">
+                                            <a
+                                                class="page-link"
+                                                href="#"
+                                                tabindex="-1"
+                                                aria-disabled="true"
+                                                >Previous</a
+                                            >
+                                        </li>
+                                        <li
+                                            class="page-item active"
+                                            aria-current="page"
+                                        >
+                                            <a class="page-link" href="#">1</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">2</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#">3</a>
+                                        </li>
+                                        <li class="page-item">
+                                            <a class="page-link" href="#"
+                                                >Next</a
+                                            >
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -263,6 +370,19 @@
                                     placeholder="Enter serial number"
                                 />
                             </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label"
+                                    >Description</label
+                                >
+                                <textarea
+                                    class="form-control"
+                                    id="description"
+                                    rows="3"
+                                    placeholder="Enter description"
+                                ></textarea>
+                            </div>
+
                             <div class="mb-3">
                                 <label for="manufactureDate" class="form-label"
                                     >Manufacture Date</label
@@ -340,13 +460,266 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-default"
-                            data-bs-dismiss="modal"
-                        >
-                            Close
-                        </button>
+                        <div class="d-flex justify-content-between">
+                            <button
+                                type="button"
+                                class="btn btn-primary mx-2"
+                                data-bs-dismiss="modal"
+                            >
+                                Add
+                            </button>
+                            <div class="">
+                                <button
+                                    type="button mx-2"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inspect Device Modal -->
+        <div id="inspectModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Inspect Device</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="inspectionDate" class="form-label"
+                                    >Inspection Date</label
+                                >
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="inspectionDate"
+                                    required
+                                />
+                            </div>
+                            <div class="mb-3">
+                                <label for="notes" class="form-label"
+                                    >Notes</label
+                                >
+                                <textarea
+                                    class="form-control"
+                                    id="notes"
+                                    rows="3"
+                                ></textarea>
+                            </div>
+
+                            <h4 class="mt-4 mb-3">Inspection Checklist</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isConspicuous"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isConspicuous"
+                                            >Is Conspicuous</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isAccessible"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isAccessible"
+                                            >Is Accessible</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isAssignedLocation"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isAssignedLocation"
+                                            >Is in Assigned Location</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isSignVisible"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isSignVisible"
+                                            >Is Sign Visible</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isAntiTamperDeviceIntact"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isAntiTamperDeviceIntact"
+                                            >Is Anti-Tamper Device Intact</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isSupportBracketSecure"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isSupportBracketSecure"
+                                            >Is Support Bracket Secure</label
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="areOperatingInstructionsClear"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="areOperatingInstructionsClear"
+                                            >Are Operating Instructions
+                                            Clear</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isMaintenanceTagAttached"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isMaintenanceTagAttached"
+                                            >Is Maintenance Tag Attached</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isExternalDamagePresent"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isExternalDamagePresent"
+                                            >Is External Damage Present</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isChargeGaugeNormal"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isChargeGaugeNormal"
+                                            >Is Charge Gauge Normal</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isReplaced"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isReplaced"
+                                            >Is Replaced</label
+                                        >
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="areMaintenanceRecordsComplete"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="areMaintenanceRecordsComplete"
+                                            >Are Maintenance Records
+                                            Complete</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="workOrderRequired"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="workOrderRequired"
+                                            >Work Order Required</label
+                                        >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="isInspectionComplete"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="isInspectionComplete"
+                                            >Is Inspection Complete</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="d-flex justify-content-between">
+                            <button
+                                type="button"
+                                class="btn btn-primary mx-2"
+                                data-bs-dismiss="modal"
+                            >
+                                Add Inspection
+                            </button>
+                            <div class="">
+                                <button
+                                    type="button mx-2"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -647,7 +1020,9 @@
 
             function inspectDevice(deviceId) {
                 console.log(`Inspect device with ID: ${deviceId}`);
-                // Add your inspect logic here
+
+                // Show the modal
+                $("#inspectModal").modal("show");
             }
 
             function DeviceNotes(description) {
