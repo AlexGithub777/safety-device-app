@@ -20,7 +20,7 @@ CREATE TABLE BuildingT (
 CREATE TABLE RoomT (
     RoomID SERIAL PRIMARY KEY,
     BuildingID INT REFERENCES BuildingT(BuildingID),
-    Name VARCHAR(100) NOT NULL
+    RoomCode VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE Emergency_Device_TypeT (
@@ -72,6 +72,7 @@ CREATE TABLE Emergency_Device_InspectionT (
 -- +goose Down
 DROP TABLE IF EXISTS Emergency_Device_InspectionT;
 DROP TABLE IF EXISTS Emergency_DeviceT;
+DROP TABLE IF EXISTS Extinguisher_TypeT; 
 DROP TABLE IF EXISTS Emergency_Device_TypeT;
 DROP TABLE IF EXISTS RoomT;
 DROP TABLE IF EXISTS BuildingT;
