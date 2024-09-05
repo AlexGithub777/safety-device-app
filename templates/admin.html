@@ -31,82 +31,191 @@
                     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
                     crossorigin="anonymous"
                 ></script>
+                <!-- Font Awesome -->
+                <link
+                    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+                    rel="stylesheet"
+                />
             </head>
             <body>
+                <header>
+                    <div class="fluid-container bg-primary">
+                        <p class="h1 text-center py-3 text-light">
+                            Admin Dashboard
+                        </p>
+
+                        <div class="d-flex justify-content-between">
+                            <button
+                                onclick="window.location.href='/dashboard'"
+                                class="btn btn-primary me-2"
+                            >
+                                <i class="fa fa-dashboard"></i> Dashboard
+                            </button>
+                            <div>
+                                <button class="btn btn-primary me-2">
+                                    <i class="fa-regular fa-user"></i> Account
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+
+                                <button class="btn btn-primary me-2">
+                                    <i class="fa-regular fa-bell"></i>
+                                    Notifications
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </header>
                 <div class="container">
-                    <h1 class="my-4">Admin Page</h1>
+                    <div>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <h2 class="my-3">Manage Users</h2>
+                        </div>
 
-                    <h2 class="my-3">Manage Users</h2>
-                    <table class="table table-striped" id="users-table">
-                        <thead>
-                            <tr>
-                                <th>User Name</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Existing users will be populated here -->
-                        </tbody>
-                    </table>
+                        <table class="table table-striped" id="users-table">
+                            <thead>
+                                <tr>
+                                    <th>User Name</th>
+                                    <th>Role</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Existing users will be populated here -->
+                                <td>User1</td>
+                                <td>Admin</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button
+                                            class="btn btn-primary edit-button"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            class="btn btn-danger delete-button"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </td>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <h2 class="my-3">Manage Locations</h2>
-                    <h3>Sites</h3>
-                    <!-- Similar structure can be used for Buildings and Rooms -->
-                    <table class="table table-striped" id="sites-table">
-                        <thead>
-                            <tr>
-                                <th>Site Name</th>
-                                <th>Site Address</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Existing sites will be populated here -->
-                        </tbody>
-                    </table>
+                    <div>
+                        <h2>Manage Locations</h2>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <h3 class="my-3">Sites</h3>
+                            <button
+                                class="btn btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addSiteModal"
+                            >
+                                Add Site
+                            </button>
+                        </div>
+                        <!-- Similar structure can be used for Buildings and Rooms -->
+                        <table class="table table-striped" id="sites-table">
+                            <thead>
+                                <tr>
+                                    <th>Site Name</th>
+                                    <th>Site Address</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Existing sites will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <h3>Buildings</h3>
-                    <table class="table table-striped" id="buildings-table">
-                        <thead>
-                            <tr>
-                                <th>Building Code</th>
-                                <th>Site Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Existing buildings will be populated here -->
-                        </tbody>
-                    </table>
+                    <div>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <h3 class="my-3">Buildings</h3>
+                            <button
+                                class="btn btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addBuildingModal"
+                            >
+                                Add Building
+                            </button>
+                        </div>
+                        <table class="table table-striped" id="buildings-table">
+                            <thead>
+                                <tr>
+                                    <th>Building Code</th>
+                                    <th>Site Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Existing buildings will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <h3>Rooms</h3>
-                    <table class="table table-striped" id="rooms-table">
-                        <thead>
-                            <tr>
-                                <th>Room Code</th>
-                                <th>Building Code</th>
-                                <th>Site</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Existing rooms will be populated here -->
-                        </tbody>
-                    </table>
+                    <div>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <h3 class="my-3">Rooms</h3>
+                            <button
+                                class="btn btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addRoomModal"
+                            >
+                                Add Room
+                            </button>
+                        </div>
+                        <table class="table table-striped" id="rooms-table">
+                            <thead>
+                                <tr>
+                                    <th>Room Code</th>
+                                    <th>Building Code</th>
+                                    <th>Site</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Existing rooms will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <h2 class="my-3">Manage Device Types</h2>
-                    <table class="table table-striped" id="device-types-table">
-                        <thead>
-                            <tr>
-                                <th>Device Type Name</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Existing device types will be populated here -->
-                        </tbody>
-                    </table>
+                    <div>
+                        <div
+                            class="d-flex justify-content-between align-items-center"
+                        >
+                            <h2 class="my-3">Manage Device Types</h2>
+                            <button
+                                class="btn btn-success"
+                                data-bs-toggle="modal"
+                                data-bs-target="#addTypeModal"
+                            >
+                                Add Device Type
+                            </button>
+                        </div>
+                        <table
+                            class="table table-striped"
+                            id="device-types-table"
+                        >
+                            <thead>
+                                <tr>
+                                    <th>Device Type Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Existing device types will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div></div>
@@ -133,8 +242,10 @@
                     <td>${site.site_name}</td>
                     <td>${site.site_address}</td>
                     <td>
-                        <button class="btn btn-warning edit-button" data-id="${site.site_id}">Edit</button>
-                        <button class="btn btn-danger delete-button" data-id="${site.site_id}">Delete</button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary edit-button" data-id="${site.site_id}">Edit</button>
+                            <button class="btn btn-danger delete-button" data-id="${site.site_id}">Delete</button>
+                        </div>
                     </td>
                 </tr>
             `
@@ -165,8 +276,10 @@
                     <td>${building.building_code}</td>
                     <td>${building.site_name}</td>
                     <td>
-                        <button class="btn btn-warning edit-button" data-id="${building.building_id}">Edit</button>
-                        <button class="btn btn-danger delete-button" data-id="${building.building_id}">Delete</button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary edit-button" data-id="${building.building_id}">Edit</button>
+                            <button class="btn btn-danger delete-button" data-id="${building.building_id}">Delete</button>
+                        </div> 
                     </td>
                 </tr>
             `
@@ -200,8 +313,10 @@
                     <td>${room.building_code}</td>
                     <td>${room.site_name}</td>
                     <td>
-                        <button class="btn btn-warning edit-button" data-id="${room.room_id}">Edit</button>
-                        <button class="btn btn-danger delete-button" data-id="${room.room_id}">Delete</button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary edit-button" data-id="${room.room_id}">Edit</button>
+                            <button class="btn btn-danger delete-button" data-id="${room.room_id}">Delete</button>
+                        </div>
                     </td>
                 </tr>
             `
@@ -231,8 +346,10 @@
                 <tr>
                     <td>${deviceType.emergency_device_type_name}</td>
                     <td>
-                        <button class="btn btn-warning edit-button" data-id="${deviceType.emergency_device_type_id}">Edit</button>
-                        <button class="btn btn-danger delete-button" data-id="${deviceType.emergency_device_type_id}">Delete</button>
+                        <div class="btn-group">
+                            <button class="btn btn-primary edit-button" data-id="${deviceType.emergency_device_type_id}">Edit</button>
+                            <button class="btn btn-danger delete-button" data-id="${deviceType.emergency_device_type_id}">Delete</button>
+                        </div>
                     </td>
                 </tr>
             `
