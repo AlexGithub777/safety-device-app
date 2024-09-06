@@ -20,7 +20,11 @@ type TemplateRenderer struct {
 func NewTemplateRenderer() *TemplateRenderer {
 	rootDir, _ := os.Getwd()
 	templateDir := filepath.Join(rootDir, "templates", "*.html")
+	dashboardComponentDir := filepath.Join(rootDir, "templates", "components", "dashboard", "*.html")
+	adminComponentDir := filepath.Join(rootDir, "templates", "components", "admin", "*.html")
 	t := template.Must(template.New("").ParseGlob(templateDir))
+	t = template.Must(t.ParseGlob(dashboardComponentDir))
+	t = template.Must(t.ParseGlob(adminComponentDir))
 	return &TemplateRenderer{templates: t}
 }
 
