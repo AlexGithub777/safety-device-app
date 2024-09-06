@@ -129,13 +129,14 @@
                         <i class="fa-solid fa-gear"></i> Admin Settings
                     </button>
                     <div>
+                        <button
+                            class="btn btn-primary me-2"
+                            onclick="ViewNotifications()"
+                        >
+                            <i class="fa-regular fa-bell"></i> Notifications
+                        </button>
                         <button class="btn btn-primary me-2">
                             <i class="fa-regular fa-user"></i> Account
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </button>
-
-                        <button class="btn btn-primary me-2">
-                            <i class="fa-regular fa-bell"></i> Notifications
                             <i class="fa-solid fa-chevron-down"></i>
                         </button>
                     </div>
@@ -145,26 +146,26 @@
 
         <div class="container-fluid">
             <!-- Toggle Map button -->
-
-            <div class="my-4 d-flex justify-content-between">
-                <button class="btn btn-primary me-2" onclick="toggleMap()">
-                    Toggle Map
-                </button>
-                <div class="">
-                    <button class="btn btn-success" onclick="addDevice()">
-                        Add Device
-                    </button>
-                </div>
-            </div>
-
             <div class="row mx-lg-2">
+                <div class="my-4 d-flex justify-content-between">
+                    <button class="btn btn-primary me-2" onclick="ToggleMap()">
+                        Toggle Map
+                    </button>
+                    <!-- Add Device button -->
+                    <div>
+                        <button class="btn btn-success" onclick="AddDevice()">
+                            Add Device
+                        </button>
+                    </div>
+                </div>
                 <!-- Map Section -->
-                <div id="map" class="col-12 col-xxl-3"></div>
+                <div id="map" class="col-12 col-xxl-2"></div>
 
                 <!-- Device List Section -->
-                <div class="device-list col-xxl-9">
+                <div class="device-list col-xxl-10">
                     <div class="d-flex justify-content-end"></div>
                     <div>
+                        <!-- Search and filter section -->
                         <div class="input-group mb-3">
                             <input
                                 type="text"
@@ -176,6 +177,7 @@
                                 class="btn btn-secondary"
                                 type="button"
                                 id="search-button"
+                                onclick=""
                             >
                                 Search
                             </button>
@@ -206,16 +208,16 @@
                         <table class="table table-striped table-hover">
                             <thead class="table-primary">
                                 <tr>
-                                    <th>Device Type</th>
-                                    <th>Extinguisher Type</th>
-                                    <th>Room</th>
-                                    <th>Serial Number</th>
-                                    <th>Manufacture Date</th>
-                                    <th>Expire Date</th>
-                                    <th>Last Inspection Date</th>
-                                    <th>Next Inspection Date</th>
-                                    <th>Size</th>
-                                    <th>Status</th>
+                                    <th>Device Type ▲</th>
+                                    <th>Extinguisher Type ▲</th>
+                                    <th>Room ▲</th>
+                                    <th>Serial Number ▲</th>
+                                    <th>Manufacture Date ▲</th>
+                                    <th>Expire Date ▲</th>
+                                    <th>Last Inspection Date ▲</th>
+                                    <th>Next Inspection Date ▲</th>
+                                    <th>Size ▲</th>
+                                    <th>Status ▲</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -277,6 +279,179 @@
             </div>
         </div>
 
+        <!-- Notifications Modal -->
+        <div id="notificationsModal" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Notifications</h4>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Device notifications cards -->
+                        <div id="deviceNotificationsCards">
+                            <!-- Each div represents a device notification -->
+                            <!-- This will be populated dynamically using JavaScript -->
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        Fire Extinguisher
+                                        <i
+                                            class="text-danger fa-solid fa-exclamation-triangle"
+                                        ></i>
+                                    </h4>
+                                    <div class="card-text">
+                                        <div
+                                            class="d-flex justify-content-between"
+                                        >
+                                            <div>
+                                                <span
+                                                    >Serial Number:
+                                                    SN00001</span
+                                                ><br />
+                                                <span>Room: A1</span><br />
+                                                <span
+                                                    ><b
+                                                        >Inspection Due: 2 days
+                                                        ago</b
+                                                    ></span
+                                                >
+                                            </div>
+                                            <div>
+                                                <button
+                                                    class="btn btn-primary"
+                                                    onclick="ViewDeviceInspection(1)"
+                                                >
+                                                    Inspect
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        Fire Extinguisher
+                                        <i
+                                            class="text-danger fa-solid fa-exclamation-triangle"
+                                        ></i>
+                                    </h5>
+                                    <div class="card-text">
+                                        <div
+                                            class="d-flex justify-content-between"
+                                        >
+                                            <div>
+                                                <span
+                                                    >Serial Number:
+                                                    SN00002</span
+                                                ><br />
+                                                <span>Room: A1</span><br />
+                                                <span
+                                                    ><b
+                                                        >Device Expired: 3 days
+                                                        ago</b
+                                                    ></span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        Fire Extinguisher
+                                        <i
+                                            class="text-danger fa-solid fa-exclamation-triangle"
+                                        ></i>
+                                    </h5>
+                                    <div class="card-text">
+                                        <div
+                                            class="d-flex justify-content-between"
+                                        >
+                                            <div>
+                                                <span
+                                                    >Serial Number:
+                                                    SN00003</span
+                                                ><br />
+                                                <span>Room: B1</span><br />
+                                                <span
+                                                    ><b
+                                                        >Device Expires In: 3
+                                                        days</b
+                                                    ></span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">
+                                        Fire Extinguisher
+                                        <i
+                                            class="text-danger fa-solid fa-exclamation-triangle"
+                                        ></i>
+                                    </h5>
+                                    <div class="card-text">
+                                        <div
+                                            class="d-flex justify-content-between"
+                                        >
+                                            <div>
+                                                <span
+                                                    >Serial Number:
+                                                    SN00004</span
+                                                ><br />
+                                                <span>Room: B1</span><br />
+                                                <span
+                                                    ><b
+                                                        >Inspection Due In: 5
+                                                        days</b
+                                                    ></span
+                                                >
+                                            </div>
+                                            <div>
+                                                <button
+                                                    class="btn btn-primary"
+                                                    onclick="ViewDeviceInspection(1)"
+                                                >
+                                                    Inspect
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            data-bs-dismiss="modal"
+                        >
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- View Notes Modal -->
         <div id="notesModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -284,6 +459,12 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Device Notes</h4>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
                     <div class="modal-body">
                         <p id="notesModalBody">Some text in the modal.</p>
@@ -291,7 +472,7 @@
                     <div class="modal-footer">
                         <button
                             type="button"
-                            class="btn btn-default"
+                            class="btn btn-secondary"
                             data-bs-dismiss="modal"
                         >
                             Close
@@ -303,11 +484,17 @@
 
         <!-- Add Device Modal -->
         <div id="addModal" class="modal fade" role="dialog">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-scrollable">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Add Device</h4>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
                     <div class="modal-body">
                         <form class="form-control">
@@ -393,18 +580,6 @@
                                     id="manufactureDate"
                                 />
                             </div>
-                            <!--
-                            <div class="mb-3">
-                                <label for="expireDate" class="form-label"
-                                    >Expire Date</label
-                                >
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    id="expireDate"
-                                />
-                            </div>
-                            -->
                             <div class="mb-3">
                                 <label
                                     for="lastInspectionDate"
@@ -417,20 +592,6 @@
                                     id="lastInspectionDate"
                                 />
                             </div>
-                            <!--
-                            <div class="mb-3">
-                                <label
-                                    for="nextInspectionDate"
-                                    class="form-label"
-                                    >Next Inspection Date</label
-                                >
-                                <input
-                                    type="date"
-                                    class="form-control"
-                                    id="nextInspectionDate"
-                                />
-                            </div>
-                            -->
                             <div class="mb-3">
                                 <label for="size" class="form-label"
                                     >Size</label
@@ -461,14 +622,7 @@
                     </div>
                     <div class="modal-footer">
                         <div class="d-flex justify-content-between">
-                            <button
-                                type="button"
-                                class="btn btn-primary mx-2"
-                                data-bs-dismiss="modal"
-                            >
-                                Add
-                            </button>
-                            <div class="">
+                            <div>
                                 <button
                                     type="button mx-2"
                                     class="btn btn-secondary"
@@ -477,19 +631,32 @@
                                     Close
                                 </button>
                             </div>
+                            <button
+                                type="button"
+                                class="btn btn-primary mx-2"
+                                data-bs-dismiss="modal"
+                            >
+                                Add Device
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Inspect Device Modal -->
-        <div id="inspectModal" class="modal fade" role="dialog">
+        <!-- Add Inspection Device Modal -->
+        <div id="addInspectionModal" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h4 class="modal-title">Inspect Device</h4>
+                        <h4 class="modal-title">Add Inspection</h4>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
                     </div>
                     <div class="modal-body">
                         <form>
@@ -590,6 +757,18 @@
                                             >Is Support Bracket Secure</label
                                         >
                                     </div>
+                                    <div class="form-check mb-2">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="workOrderRequired"
+                                        />
+                                        <label
+                                            class="form-check-label"
+                                            for="workOrderRequired"
+                                            >Work Order Required</label
+                                        >
+                                    </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-check mb-2">
@@ -668,34 +847,26 @@
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row mt-4">
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            id="workOrderRequired"
-                                        />
-                                        <label
-                                            class="form-check-label"
-                                            for="workOrderRequired"
-                                            >Work Order Required</label
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="inspectionStatus"
+                                            >Inspection Status</label
                                         >
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-check mb-2">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            id="isInspectionComplete"
-                                        />
-                                        <label
-                                            class="form-check-label"
-                                            for="isInspectionComplete"
-                                            >Is Inspection Complete</label
+                                        <select
+                                            class="form-select"
+                                            id="inspectionStatus"
                                         >
+                                            <option value="passed">
+                                                Passed
+                                            </option>
+                                            <option value="failed">
+                                                Failed
+                                            </option>
+                                            <option value="in-progress">
+                                                In Progress
+                                            </option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -703,14 +874,7 @@
                     </div>
                     <div class="modal-footer">
                         <div class="d-flex justify-content-between">
-                            <button
-                                type="button"
-                                class="btn btn-primary mx-2"
-                                data-bs-dismiss="modal"
-                            >
-                                Add Inspection
-                            </button>
-                            <div class="">
+                            <div>
                                 <button
                                     type="button mx-2"
                                     class="btn btn-secondary"
@@ -719,7 +883,113 @@
                                     Close
                                 </button>
                             </div>
+                            <button
+                                type="button"
+                                class="btn btn-primary mx-2"
+                                data-bs-dismiss="modal"
+                            >
+                                Add Inspection
+                            </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Device Inspection modal -->
+
+        <div id="viewInspectionModal" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div
+                        class="modal-header d-flex justify-content-between align-items-center"
+                    >
+                        <h4 class="modal-title">Inspection List</h4>
+                        <button
+                            type="button"
+                            class="btn btn-success"
+                            onclick="AddInspection()"
+                        >
+                            Add Inspection
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="">
+                            <!-- May need overflow scroll-->
+                            <table
+                                class="table table-striped table-hover overflow-scroll"
+                                id="inspection-table"
+                            >
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th data-label="Inspection Date">
+                                            Inspection Date
+                                        </th>
+                                        <th data-label="Inspector Name">
+                                            Inspector Name
+                                        </th>
+                                        <th data-label="Inspection Status">
+                                            Inspection Status
+                                        </th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td data-label="Serial Number">
+                                            January 1, 2024
+                                        </td>
+                                        <td data-label="Inspector Name">
+                                            Jonathan Bixley
+                                        </td>
+                                        <td data-label="Inspection Status">
+                                            <span class="badge bg-success"
+                                                >Passed</span
+                                            >
+                                        </td>
+                                        <td data-labeL="Actions">
+                                            <button
+                                                class="btn btn-primary"
+                                                onclick="ViewInspectionDetails()"
+                                            >
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td data-label="Inspection Date">
+                                            April 1, 2024
+                                        </td>
+                                        <td data-label="Inspector Name">
+                                            Jonathan Bixley
+                                        </td>
+                                        <td data-label="Inspection Status">
+                                            <span class="badge bg-danger"
+                                                >Failed</span
+                                            >
+                                        </td>
+                                        <td data-labeL="Actions">
+                                            <button
+                                                class="btn btn-primary"
+                                                onclick="ViewInspectionDetails()"
+                                            >
+                                                View Details
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
                     </div>
                 </div>
             </div>
@@ -880,16 +1150,16 @@
                             }</span></td>
                         <td>
                             <div class="action-buttons">
-                                            <button class="btn btn-secondary" onclick="inspectDevice(${
+                                            <button class="btn btn-secondary" onclick="ViewDeviceInspection(${
                                                 device.emergency_device_id
                                             })">Inspect</button>
                                             <button class="btn btn-primary" onclick="DeviceNotes('${
                                                 device.description.String
                                             }')">Notes</button>
-                                            <button class="btn btn-warning" onclick="editDevice(${
+                                            <button class="btn btn-warning" onclick="EditDevice(${
                                                 device.emergency_device_id
                                             })">Edit</button>
-                                            <button class="btn btn-danger" onclick="deleteDevice(${
+                                            <button class="btn btn-danger" onclick="DeleteDevice(${
                                                 device.emergency_device_id
                                             })">Delete</button>
                                         </div>
@@ -906,7 +1176,7 @@
             // Initial fetch without filtering
             GetAllDevices();
 
-            function addDevice() {
+            function AddDevice() {
                 // Fetch the device types and populate the select options
                 fetch("/api/emergency-device-type")
                     .then((response) => response.json())
@@ -1008,21 +1278,37 @@
                 $("#addModal").modal("show");
             }
 
-            function editDevice(deviceId) {
+            function EditDevice(deviceId) {
                 console.log(`Edit device with ID: ${deviceId}`);
                 // Add your edit logic here
             }
 
-            function deleteDevice(deviceId) {
+            function DeleteDevice(deviceId) {
                 console.log(`Delete device with ID: ${deviceId}`);
                 // Add your delete logic here
             }
 
-            function inspectDevice(deviceId) {
+            // Change to add inspection
+            function ViewDeviceInspection(deviceId) {
                 console.log(`Inspect device with ID: ${deviceId}`);
 
                 // Show the modal
-                $("#inspectModal").modal("show");
+                $("#viewInspectionModal").modal("show");
+            }
+
+            function ViewInspectionDetails(inspectionId) {
+                console.log(
+                    `View inspection details for inspection ID: ${inspectionId}`
+                );
+                // Add your view inspection details logic here
+            }
+
+            function AddInspection() {
+                // Close the view inspection modal
+                $("#viewInspectionModal").modal("hide");
+
+                // Show the modal
+                $("#addInspectionModal").modal("show");
             }
 
             function DeviceNotes(description) {
@@ -1033,10 +1319,15 @@
                 // Show the modal
                 $("#notesModal").modal("show");
             }
-        </script>
 
-        <script>
-            function toggleMap() {
+            function ViewNotifications() {
+                console.log("View notifications");
+                $("#notificationsModal").modal("show");
+                // Add your view notifications logic here
+            }
+
+            // Function to toggle the map visibility
+            function ToggleMap() {
                 var map = document.getElementById("map");
                 var deviceList = document.querySelector(".device-list");
 
@@ -1044,13 +1335,13 @@
                 if (map.classList.contains("d-none")) {
                     // Map is hidden, show the map and set device list back to col-xxl-9 width
                     map.classList.remove("d-none");
-                    map.classList.add("col-xxl-3");
+                    map.classList.add("col-xxl-2");
                     deviceList.classList.remove("col-xxl-12");
-                    deviceList.classList.add("col-xxl-9");
+                    deviceList.classList.add("col-xxl-10");
                 } else {
                     // Map is visible, hide the map and make device list 100% width
                     map.classList.add("d-none");
-                    deviceList.classList.remove("col-xxl-9");
+                    deviceList.classList.remove("col-xxl-10");
                     deviceList.classList.add("col-xxl-12");
                 }
             }
