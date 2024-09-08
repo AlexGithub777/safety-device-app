@@ -55,11 +55,146 @@ fetch("static/buildings.json")
 
 map.fitBounds(bounds);
 
-async function GetAllDevices(buildingCode = "") {
+// function to get filter options
+function GetFilterOptions() {
+    // Fetch the sites and populate the select options
+    fetch("/api/site")
+        .then((response) => response.json())
+        .then((data) => {
+            const select = document.getElementById("siteFilter");
+            // Clear previous options
+            select.innerHTML = "";
+            // Add a default option and select it
+            const defaultOption = document.createElement("option");
+            defaultOption.text = "All Sites";
+            defaultOption.selected = true;
+            select.add(defaultOption);
+            data.forEach((item) => {
+                const option = document.createElement("option");
+                option.text = item.site_name; // Set the text of the option
+                option.value = item.site_id; // Set the value of the option
+                select.add(option);
+            });
+        })
+        .catch((error) => console.error("Error:", error));
+
+    // Fetch the buildings and populate the select options based on the selected site
+    document.getElementById("siteFilter").addEventListener("change", () => {
+        const selectedSite = document.getElementById("siteFilter").value;
+        fetch(`/api/building?siteId=${selectedSite}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById("buildingFilter");
+                // Clear previous options
+                select.innerHTML = "";
+                // Add a default option and select it
+                const defaultOption = document.createElement("option");
+                defaultOption.text = "All Buildings";
+                defaultOption.selected = true;
+                select.add(defaultOption);
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.text = item.building_code; // Set the text of the option
+                    option.value = item.building_id; // Set the value of the option
+                    select.add(option);
+                });
+
+                // Clear roomFilter options
+                const roomSelect = document.getElementById("roomFilter");
+                roomSelect.innerHTML = "";
+                const defaultRoomOption = document.createElement("option");
+                defaultRoomOption.text = "All Rooms";
+                defaultRoomOption.selected = true;
+                roomSelect.add(defaultRoomOption);
+            })
+            .catch((error) => console.error("Error:", error));
+    });
+
+    // Fetch the rooms and populate the select options based on the selected building
+    document.getElementById("buildingFilter").addEventListener("change", () => {
+        const selectedBuilding =
+            document.getElementById("buildingFilter").value;
+        fetch(`/api/room?buildingId=${selectedBuilding}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById("roomFilter");
+                // Clear previous options
+                select.innerHTML = "";
+                // Add a default option and select it
+                const defaultOption = document.createElement("option");
+                defaultOption.text = "All Rooms";
+                defaultOption.selected = true;
+                select.add(defaultOption);
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.text = item.room_code; // Set the text of the option
+                    select.add(option);
+                });
+            })
+            .catch((error) => console.error("Error:", error));
+    });
+
+    // Fetch the device types and populate the select options
+    fetch("/api/emergency-device-type")
+        .then((response) => response.json())
+        .then((data) => {
+            const select = document.getElementById("deviceTypeFilter");
+            // Clear previous options
+            select.innerHTML = "";
+            // Add a default option and select it
+            const defaultOption = document.createElement("option");
+            defaultOption.text = "All Device Types";
+            defaultOption.selected = true;
+            select.add(defaultOption);
+            data.forEach((item) => {
+                const option = document.createElement("option");
+                option.text = item.emergency_device_type_name; // Set the text of the option
+                select.add(option);
+            });
+        })
+        .catch((error) => console.error("Error:", error));
+}
+
+// Function to filter devices by site
+function FilterBySite() {
+    const siteName =
+        document.getElementById("siteFilter").selectedOptions[0].text;
+    const siteId = document.getElementById("siteFilter").value;
+    console.log("Site Name:", siteName);
+    console.log("Site ID:", siteId);
+    const buildingCode = ""; // Set the building code to empty to fetch all devices
+    if (siteName === "All Sites") {
+        console.log("Filter by site: All Sites");
+        GetAllDevices();
+        return;
+    }
+    GetAllDevices(buildingCode, siteId);
+
+    // Clear roomFilter options
+    const roomSelect = document.getElementById("roomFilter");
+    roomSelect.innerHTML = "";
+    const defaultRoomOption = document.createElement("option");
+    defaultRoomOption.text = "All Rooms";
+    defaultRoomOption.selected = true;
+    roomSelect.add(defaultRoomOption);
+}
+
+document.getElementById("siteFilter").addEventListener("change", FilterBySite);
+
+// Call the function to populate the filter options
+GetFilterOptions();
+
+// Function to fetch devices and populate the table
+
+async function GetAllDevices(buildingCode = "", siteId = "") {
     try {
-        const url = buildingCode
-            ? `/api/emergency-device?building_code=${buildingCode}`
-            : "/api/emergency-device";
+        let url = "/api/emergency-device";
+        if (buildingCode) {
+            url += `?building_code=${buildingCode}`;
+        }
+        if (siteId) {
+            url += `?site_id=${siteId}`;
+        }
         const response = await fetch(url);
         const devices = await response.json();
 
@@ -158,6 +293,100 @@ async function GetAllDevices(buildingCode = "") {
 GetAllDevices();
 
 function AddDevice() {
+    // Fetch the sites and populate the select options
+    fetch("/api/site")
+        .then((response) => response.json())
+        .then((data) => {
+            const select = document.getElementById("site");
+            // Clear previous options
+            select.innerHTML = "";
+            // Add a default option and select it
+            const defaultOption = document.createElement("option");
+            defaultOption.text = "Select a Site";
+            defaultOption.value = "";
+            defaultOption.selected = true;
+            defaultOption.disabled = true;
+            select.add(defaultOption);
+            data.forEach((item) => {
+                const option = document.createElement("option");
+                option.text = item.site_name;
+                option.value = item.site_id;
+                select.add(option);
+            });
+        })
+        .catch((error) => console.error("Error:", error));
+
+    // Function to clear building and room options
+    function clearBuildingAndRoom() {
+        const buildingSelect = document.getElementById("building");
+        const roomSelect = document.getElementById("room");
+        buildingSelect.innerHTML =
+            "<option value='' selected disabled>Select a Building</option>";
+        roomSelect.innerHTML =
+            "<option value='' selected disabled>Select a Room</option>";
+    }
+
+    // Function to fetch and populate buildings
+    function fetchAndPopulateBuildings(siteId) {
+        fetch(`/api/building?siteId=${siteId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById("building");
+                select.innerHTML =
+                    "<option value='' selected disabled>Select a Building</option>";
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.text = item.building_code;
+                    option.value = item.building_id;
+                    select.add(option);
+                });
+
+                // If there's only one building, select it automatically
+                if (data.length === 1) {
+                    select.value = data[0].building_id;
+                    select.dispatchEvent(new Event("change"));
+                }
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+
+    // Function to fetch and populate rooms
+    function fetchAndPopulateRooms(buildingId) {
+        fetch(`/api/room?buildingId=${buildingId}`)
+            .then((response) => response.json())
+            .then((data) => {
+                const select = document.getElementById("room");
+                select.innerHTML =
+                    "<option value='' selected disabled>Select a Room</option>";
+                data.forEach((item) => {
+                    const option = document.createElement("option");
+                    option.text = item.room_code;
+                    option.value = item.room_id;
+                    select.add(option);
+                });
+            })
+            .catch((error) => console.error("Error:", error));
+    }
+
+    // Event listener for site change
+    document.getElementById("site").addEventListener("change", (event) => {
+        const selectedSiteId = event.target.value;
+        clearBuildingAndRoom();
+
+        if (selectedSiteId) {
+            fetchAndPopulateBuildings(selectedSiteId);
+        }
+    });
+
+    // Event listener for building change
+    document.getElementById("building").addEventListener("change", (event) => {
+        const selectedBuildingId = event.target.value;
+
+        if (selectedBuildingId) {
+            fetchAndPopulateRooms(selectedBuildingId);
+        }
+    });
+
     // Fetch the device types and populate the select options
     fetch("/api/emergency-device-type")
         .then((response) => response.json())
@@ -196,59 +425,6 @@ function AddDevice() {
                 const option = document.createElement("option");
                 option.text = item.extinguisher_type_name; // Set the text of the option
                 select.add(option);
-            });
-        })
-        .catch((error) => console.error("Error:", error));
-
-    // Function to populate the room dropdown
-    function populateRooms(buildingId) {
-        // Fetch the rooms for the selected building and populate the select options
-        fetch(`/api/room?buildingId=${buildingId}`)
-            .then((response) => response.json())
-            .then((data) => {
-                const select = document.getElementById("room");
-                // Clear previous options
-                select.innerHTML = "";
-                // Add a default option and select it
-                const defaultOption = document.createElement("option");
-                defaultOption.text = "Select Room";
-                defaultOption.selected = true;
-                defaultOption.disabled = true;
-                select.add(defaultOption);
-                data.forEach((item) => {
-                    const option = document.createElement("option");
-                    option.text = item.room_code; // Set the text of the option
-                    select.add(option);
-                });
-            })
-            .catch((error) => console.error("Error:", error));
-    }
-
-    // Fetch the buildings and populate the select options
-    fetch("/api/building")
-        .then((response) => response.json())
-        .then((data) => {
-            const select = document.getElementById("building");
-            // Clear previous options
-            select.innerHTML = "";
-            // Add a default option and select it
-            const defaultOption = document.createElement("option");
-            defaultOption.text = "Select Building";
-            defaultOption.selected = true;
-            defaultOption.disabled = true;
-            select.add(defaultOption);
-            data.forEach((item) => {
-                const option = document.createElement("option");
-                option.text = item.building_code; // Set the text of the option
-                select.add(option);
-            });
-            // Populate the room dropdown for the first building
-            if (data.length > 0) {
-                populateRooms(data[0].building_code);
-            }
-            // Add event listener to the building select
-            select.addEventListener("change", function () {
-                populateRooms(this.value);
             });
         })
         .catch((error) => console.error("Error:", error));

@@ -7,35 +7,44 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 )
 
-func (db *DB) GetAllDevices(buildingCode string) ([]models.EmergencyDevice, error) {
+// Refactor/add new function to GetAllDevices by Site
+func (db *DB) GetAllDevices(siteId string, buildingCode string) ([]models.EmergencyDevice, error) {
 	var query string
 	var args []interface{}
 
 	// Define the base query
 	query = `
-    SELECT 
-        ed.emergencydeviceid, 
-        edt.emergencydevicetypename,
-        et.extinguishertypename AS ExtinguisherTypeName,
-        r.roomcode,
-        ed.serialnumber,
-        ed.manufacturedate,
-        ed.lastinspectiondate,
-        ed.description,
-        ed.size,
-        ed.status 
-    FROM emergency_deviceT ed
-    JOIN roomT r ON ed.roomid = r.roomid
-    LEFT JOIN emergency_device_typeT edt ON ed.emergencydevicetypeid = edt.emergencydevicetypeid
-    LEFT JOIN Extinguisher_TypeT et ON ed.extinguishertypeid = et.extinguishertypeid
-    `
+	SELECT 
+		ed.emergencydeviceid, 
+		edt.emergencydevicetypename,
+		et.extinguishertypename AS ExtinguisherTypeName,
+		r.roomcode,
+		ed.serialnumber,
+		ed.manufacturedate,
+		ed.lastinspectiondate,
+		ed.description,
+		ed.size,
+		ed.status 
+	FROM emergency_deviceT ed
+	JOIN roomT r ON ed.roomid = r.roomid
+	LEFT JOIN emergency_device_typeT edt ON ed.emergencydevicetypeid = edt.emergencydevicetypeid
+	LEFT JOIN Extinguisher_TypeT et ON ed.extinguishertypeid = et.extinguishertypeid
+	`
 
-	// Add filtering by building code if provided
-	if buildingCode != "" {
+	// Add filtering by site name if provided
+	if siteId != "" {
 		query += `
-        JOIN buildingT b ON r.buildingid = b.buildingid
-        WHERE b.buildingcode = $1
-        `
+		JOIN buildingT b ON r.buildingid = b.buildingid
+		JOIN siteT s ON b.siteid = s.siteid
+		WHERE s.siteid = $1
+		`
+		args = append(args, siteId)
+	} else if buildingCode != "" {
+		// Add filtering by building code if provided
+		query += `
+		JOIN buildingT b ON r.buildingid = b.buildingid
+		WHERE b.buildingcode = $1
+		`
 		args = append(args, buildingCode)
 	}
 
@@ -203,7 +212,7 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 
 	// Add filtering by building code if provided
 	if buildingId != "" {
-		query += ` WHERE b.buildingcode = $1`
+		query += ` WHERE b.buildingId = $1`
 		args = append(args, buildingId)
 	}
 
@@ -237,19 +246,31 @@ func (db *DB) GetAllRooms(buildingId string) ([]models.Room, error) {
 	return rooms, nil
 }
 
-func (db *DB) GetAllBuildings() ([]models.Building, error) {
+func (db *DB) GetAllBuildings(siteId string) ([]models.Building, error) {
+	var args []interface{}
 	query := `
     SELECT b.buildingid, b.buildingcode, b.siteid, s.sitename
     FROM buildingT b
     JOIN siteT s ON b.siteid = s.siteid
-    ORDER BY b.buildingcode
     `
 
-	rows, err := db.Query(query)
+	// Add filtering by site name if provided
+	if siteId != "" {
+		query += ` WHERE s.siteid = $1`
+		args = append(args, siteId)
+	}
+
+	query += ` ORDER BY b.buildingcode`
+
+	// Prepare and execute the query
+	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
+
 	defer rows.Close()
+
+	// Define the result slice
 
 	var buildings []models.Building
 

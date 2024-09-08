@@ -1,3 +1,4 @@
+<!-- This is the device list component of the dashboard page -->
 <div class="container-fluid">
     <!-- Toggle Map button -->
     <div class="row mx-lg-2">
@@ -37,23 +38,35 @@
                     </button>
                 </div>
             </div>
+            <!-- Filter section -->
             <div class="d-flex justify-content-between m-1">
                 <i class="mx-2 fa-solid fa-filter"></i>
-                <select class="form-select mx-2">
-                    <option selected>Device Type</option>
+                <select id="siteFilter" class="form-select mx-2">
+                    <option selected>Site</option>
                     <!-- Dropdown options for the first dropdown -->
                 </select>
-                <select class="form-select mx-2">
+                <select id="buildingFilter" class="form-select mx-2">
                     <option selected>Building</option>
-                    <!-- Dropdown options for the second dropdown -->
+                    <!-- Dropdown options for the third dropdown -->
                 </select>
-                <select class="form-select mx-2">
+                <select id="roomFilter" class="form-select mx-2">
                     <option selected>Room</option>
                     <!-- Dropdown options for the third dropdown -->
                 </select>
-                <select class="form-select ms-2">
+                <select id="deviceTypeFilter" class="form-select mx-2">
+                    <option selected>Device Type</option>
+                    <!-- Dropdown options for the second dropdown -->
+                </select>
+                <select
+                    class="form-select"
+                    id="statusFilter"
+                    aria-label="Select status"
+                >
                     <option selected>Status</option>
-                    <!-- Dropdown options for the fourth dropdown -->
+                    <option>Active</option>
+                    <option>Expired</option>
+                    <option>Inspection Due</option>
+                    <option>Inactive</option>
                 </select>
             </div>
             <!-- Bootstrap Table -->
