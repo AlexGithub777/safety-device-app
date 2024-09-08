@@ -9,9 +9,10 @@ import (
 // GetAllDevices fetches all emergency devices from the database with optional filtering by building code
 // and returns the results as JSON
 func (a *App) HandleGetAllDevices(c echo.Context) error {
+	siteId := c.QueryParam("site_id")
 	buildingCode := c.QueryParam("building_code")
 
-	emergencyDevices, err := a.DB.GetAllDevices(buildingCode)
+	emergencyDevices, err := a.DB.GetAllDevices(siteId, buildingCode)
 	if err != nil {
 		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
 	}
@@ -53,7 +54,8 @@ func (a *App) HandleGetAllRooms(c echo.Context) error {
 }
 
 func (a *App) HandleGetAllBuildings(c echo.Context) error {
-	buildings, err := a.DB.GetAllBuildings()
+	siteId := c.QueryParam("siteId")
+	buildings, err := a.DB.GetAllBuildings(siteId)
 	if err != nil {
 		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
 	}

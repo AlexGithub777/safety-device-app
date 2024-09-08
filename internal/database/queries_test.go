@@ -179,7 +179,7 @@ func TestGetAllDevices(t *testing.T) {
 				mock.ExpectQuery("^SELECT (.+) FROM emergency_deviceT").WillReturnRows(rows)
 			}
 
-			actualDevices, err := dbInstance.GetAllDevices("your_building_code")
+			actualDevices, err := dbInstance.GetAllDevices("your_building_code", "your_site_name")
 
 			if tc.expectedError != nil {
 				assert.Error(t, err)
