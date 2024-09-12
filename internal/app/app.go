@@ -35,10 +35,6 @@ func NewApp(cfg config.Config) *App {
 	// Serve static files
 	router.Static("/static", "static")
 
-<<<<<<< HEAD
-=======
-	// Middleware
->>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 	router.Use(middleware.Logger())  // Log requests
 	router.Use(middleware.Recover()) // Recover from panics
 	router.Use(middleware.CORS())    // Enable CORS
@@ -53,17 +49,10 @@ func NewApp(cfg config.Config) *App {
 	// Check data import status
 	_, err = os.Stat(tempFilePath)
 	if os.IsNotExist(err) {
-<<<<<<< HEAD
 		log.Println("Data not imported")
 		database.SeedData(db.DB) // Seed data
 	} else {
 		log.Println("Data already imported")
-=======
-		log.Println("--- data not imported")
-		database.SeedData(db.DB) // Seed data
-	} else {
-		log.Println("--- data already imported")
->>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 	}
 
 	// Initialize Logger

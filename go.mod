@@ -4,11 +4,9 @@ go 1.22.5
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/joho/godotenv v1.5.1
-<<<<<<< HEAD
 	github.com/labstack/echo-jwt/v4 v4.2.0
-=======
->>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 	github.com/labstack/echo/v4 v4.12.0
 	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.8.4
@@ -16,11 +14,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
-<<<<<<< HEAD
-	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
-=======
->>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
+	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
