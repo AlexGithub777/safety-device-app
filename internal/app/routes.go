@@ -1,5 +1,6 @@
 package app
 
+<<<<<<< HEAD
 import (
 	"os"
 
@@ -40,4 +41,24 @@ func (a *App) initRoutes() {
 	api.GET("/site", a.HandleGetAllSites)
 	//a.Router.POST("/api/emergency-device", a.HandleAddDevice)
 	// Add the rest of your API routes here
+=======
+func (a *App) initRoutes() {
+	// Web routes
+	a.Router.GET("/", a.HandleHome)
+	a.Router.GET("/dashboard", a.HandleDashboard)
+	a.Router.GET("/admin", a.HandleAdmin)
+	a.Router.GET("/register", a.HandleRegister)
+	a.Router.GET("/login", a.HandleHome)
+	a.Router.GET("/forgot-password", a.HandleForgotPassword)
+
+	// API routes
+	a.Router.GET("/api/emergency-device", a.HandleGetAllDevices)
+	a.Router.GET("/api/emergency-device-type", a.HandleGetAllDeviceTypes)
+	a.Router.GET("/api/extinguisher-type", a.HandleGetAllExtinguisherTypes)
+	a.Router.GET("/api/room", a.HandleGetAllRooms)
+	a.Router.GET("/api/building", a.HandleGetAllBuildings)
+	a.Router.GET("/api/site", a.HandleGetAllSites)
+	//a.Router.POST("/api/emergency-device", a.HandleAddDevice)
+
+>>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 }

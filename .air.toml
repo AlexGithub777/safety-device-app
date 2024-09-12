@@ -3,11 +3,16 @@
 # Working directory
 # . or absolute path, please note that the directories following must be under root.
 root = "."
+<<<<<<< HEAD
+=======
+tmp_dir = "tmp"
+>>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 
 [build]
 # Array of commands to run before each build
 pre_cmd = [""]
 # Just plain old shell command. You could use `make` as well.
+<<<<<<< HEAD
 cmd = "go build -o ./edms.exe ./cmd/main.go"
 # Array of commands to run after ^C
 post_cmd = [""]
@@ -21,6 +26,21 @@ include_ext = ["go", "tpl", "tmpl", "html", "js", "css", "json"]
 exclude_dir = ["assets", "vendor", "frontend/node_modules"]
 # Watch these directories if you specified.
 include_dir = ["cmd", "internal", "templates", "static"]
+=======
+cmd = "go build -o ./tmp/main.exe ./cmd/main.go"
+# Array of commands to run after ^C
+post_cmd = [""]
+# Binary file yields from `cmd`.
+bin = "tmp/main.exe"
+# Add additional arguments when running binary (bin/full_bin). Will run './tmp/main hello world'.
+args_bin = []
+# Watch these filename extensions.
+include_ext = ["go", "tpl", "tmpl", "html"]
+# Ignore these filename extensions or directories.
+exclude_dir = ["assets", "tmp", "vendor", "frontend/node_modules"]
+# Watch these directories if you specified.
+include_dir = ["cmd", "internal", "templates"]
+>>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 # Watch these files.
 include_file = []
 # Exclude files.
@@ -31,7 +51,11 @@ exclude_regex = ["_test\\.go"]
 exclude_unchanged = true
 # Follow symlink for directories
 follow_symlink = true
+<<<<<<< HEAD
 # This log file places in your project root
+=======
+# This log file places in your tmp_dir.
+>>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
 log = "air.log"
 # Poll files for changes instead of using fsnotify.
 poll = false
@@ -73,6 +97,12 @@ keep_scroll = true
 
 # Enable live-reloading on the browser.
 [proxy]
+<<<<<<< HEAD
     enabled = true
     proxy_port = 8090
     app_port = 3000
+=======
+  enabled = true
+  proxy_port = 8090
+  app_port = 3000
+>>>>>>> d3f1aef86552b4414e16af4df61e0e15859fe0b5
