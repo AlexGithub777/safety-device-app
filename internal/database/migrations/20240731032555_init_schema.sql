@@ -53,7 +53,6 @@ CREATE TABLE Emergency_Device_InspectionT (
     EmergencyDeviceID INT REFERENCES Emergency_DeviceT(EmergencyDeviceID),
     UserID INT REFERENCES UserT(UserID),
     InspectionDate DATE NOT NULL,
-    Notes VARCHAR(255) NULL,
     CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     IsConspicuous BOOLEAN NULL,
     IsAccessible BOOLEAN NULL,
@@ -68,7 +67,8 @@ CREATE TABLE Emergency_Device_InspectionT (
     IsReplaced BOOLEAN NULL,
     AreMaintenanceRecordsComplete BOOLEAN NULL,
     WorkOrderRequired BOOLEAN NULL,
-    IsInspectionComplete BOOLEAN NULL
+    InspectionStatus VARCHAR(20) NULL,
+    Notes VARCHAR(255) NULL
 );
 
 -- +goose Down
