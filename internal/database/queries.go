@@ -7,6 +7,28 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 )
 
+// Create user function
+func (db *DB) CreateUser(user *models.User) error {
+	query := `
+		INSERT INTO userT (username, password, email)
+		VALUES ($1, $2, $3)
+		`
+	insertStmt, err := db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer insertStmt.Close()
+
+	_, err = insertStmt.Exec(user.Username, user.Password, user.Email)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Refactor/add new function to GetAllDevices by Site
 func (db *DB) GetAllDevices(siteId string, buildingCode string) ([]models.EmergencyDevice, error) {
 	var query string

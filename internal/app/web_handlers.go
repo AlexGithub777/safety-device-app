@@ -1,8 +1,10 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/AlexGithub777/safety-device-app/internal/models"
 	"github.com/labstack/echo/v4"
 )
 
@@ -39,7 +41,28 @@ func (a *App) HandlePostForgotPassword(c echo.Context) error {
 
 // HandlePostRegister handles the register form submission
 func (a *App) HandlePostRegister(c echo.Context) error {
-	return nil
+	// Get the form values
+	username := c.FormValue("username")
+	email := c.FormValue("email")
+	password := c.FormValue("password")
+
+	fmt.Println(username, email, password)
+
+	// Create the user
+	user := models.User{
+		Username: username,
+		Password: password,
+		Email:    email,
+	}
+
+	// Insert the user into the database
+	err := a.DB.CreateUser(&user)
+	if err != nil {
+		return err
+	}
+
+	// Redirect to the login page
+	return c.Redirect(http.StatusSeeOther, "/")
 }
 
 // HandlePostLogin handles the login form submission

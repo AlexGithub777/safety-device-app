@@ -42,10 +42,12 @@
                                     Register
                                 </h1>
                                 <form
+                                    id="register-form"
                                     method="POST"
                                     class="needs-validation"
                                     novalidate=""
                                     autocomplete="off"
+                                    action="/register"
                                 >
                                     <div class="mb-3">
                                         <label
@@ -54,16 +56,18 @@
                                             >Username</label
                                         >
                                         <input
-                                            id="name"
+                                            id="username"
                                             type="text"
                                             class="form-control"
-                                            name="name"
+                                            name="username"
                                             value=""
                                             required
+                                            minlength="8"
                                             autofocus
                                         />
                                         <div class="invalid-feedback">
-                                            Username is required
+                                            Username is required and should be
+                                            at least 8 characters long.
                                         </div>
                                     </div>
 
@@ -98,9 +102,31 @@
                                             class="form-control"
                                             name="password"
                                             required
+                                            pattern="(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
                                         />
                                         <div class="invalid-feedback">
-                                            Password is required
+                                            Password is required, should be at
+                                            least 8 characters long, and include
+                                            at least one number and one special
+                                            character.
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label
+                                            class="mb-2 text-muted"
+                                            for="confirm-password"
+                                            >Confirm Password</label
+                                        >
+                                        <input
+                                            id="confirm-password"
+                                            type="password"
+                                            class="form-control"
+                                            name="confirm-password"
+                                            required
+                                        />
+                                        <div class="invalid-feedback">
+                                            Please confirm your password.
                                         </div>
                                     </div>
 
@@ -121,14 +147,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="text-center mt-5 text-muted">
-                            Copyright &copy; 2017-2021 &mdash; Your Company
-                        </div>
                     </div>
                 </div>
             </div>
         </section>
-        <script src="/static/login.js"></script>
+        <script src="/static/register.js"></script>
         <script>
             // hot reaload
             if (window.EventSource) {
