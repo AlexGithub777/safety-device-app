@@ -52,7 +52,7 @@ CREATE TABLE Emergency_Device_InspectionT (
     UserID INT REFERENCES UserT(UserID),
     InspectionDate DATE NOT NULL,
     Notes VARCHAR(255) NULL,
-    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Added missing comma
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     IsConspicuous BOOLEAN NULL,
     IsAccessible BOOLEAN NULL,
     IsAssignedLocation BOOLEAN NULL,
