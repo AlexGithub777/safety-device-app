@@ -29,6 +29,28 @@ func (db *DB) CreateUser(user *models.User) error {
 	return nil
 }
 
+// Get user by username function
+func (db *DB) GetUserByUsername(username string) (*models.User, error) {
+	query := `
+		SELECT userid, username, password, email
+		FROM userT
+		WHERE username = $1
+		`
+	var user models.User
+	err := db.QueryRow(query, username).Scan(
+		&user.UserID,
+		&user.Username,
+		&user.Password,
+		&user.Email,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 // Refactor/add new function to GetAllDevices by Site
 func (db *DB) GetAllDevices(siteId string, buildingCode string) ([]models.EmergencyDevice, error) {
 	var query string

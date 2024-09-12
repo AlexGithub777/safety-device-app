@@ -497,3 +497,7 @@ function ToggleMap() {
         deviceList.classList.add("col-xxl-12");
     }
 }
+
+function Logout() {
+    window.location.href = "/logout";
+}

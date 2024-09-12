@@ -49,18 +49,20 @@
                                     class="needs-validation"
                                     novalidate=""
                                     autocomplete="off"
+                                    action="/login"
+                                    id="loginForm"
                                 >
                                     <div class="mb-3">
                                         <label
                                             class="mb-2 text-muted"
-                                            for="email"
-                                            >E-Mail Address</label
+                                            for="username"
+                                            >Username</label
                                         >
                                         <input
-                                            id="email"
-                                            type="email"
+                                            id="username"
+                                            type="text"
                                             class="form-control"
-                                            name="email"
+                                            name="username"
                                             value=""
                                             required
                                             autofocus
@@ -113,7 +115,6 @@
                                         <button
                                             type="submit"
                                             class="btn btn-primary ms-auto"
-                                            onclick="login()"
                                         >
                                             Login
                                         </button>
@@ -144,10 +145,6 @@
                         location.reload();
                     });
                 };
-            }
-
-            function login() {
-                window.location.href = "/dashboard";
             }
         </script>
     </body>
