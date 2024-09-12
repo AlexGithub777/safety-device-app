@@ -1,8 +1,10 @@
 -- +goose Up
 CREATE TABLE UserT (
     UserID SERIAL PRIMARY KEY,
-    Username VARCHAR(100) NOT NULL,
-    Password VARCHAR(255) NOT NULL
+    Username VARCHAR(50) NOT NULL,
+    Password VARCHAR(50) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Role VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE SiteT (
