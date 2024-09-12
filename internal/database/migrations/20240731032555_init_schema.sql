@@ -6,7 +6,7 @@ CREATE TABLE UserT (
     Username VARCHAR(50) NOT NULL UNIQUE,
     Password VARCHAR(50) NOT NULL,
     Email VARCHAR(255) NOT NULL UNIQUE,
-    Role VARCHAR(20) NOT NULL
+    Role VARCHAR(20) NOT NULL DEFAULT 'user'
 );
 
 -- Site table to store information about different locations
