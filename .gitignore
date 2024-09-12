@@ -19,3 +19,6 @@ go.work
 
 # VSCode settings
 *.vscode
+
+# Environment variables file
+.env

@@ -15,7 +15,7 @@ if %ERRORLEVEL% neq 0 (
 :: Build the application from the cmd directory
 echo Building Go application...
 cd cmd
-go build -ldflags="-s -w" -o ../safety-device-app.exe .
+go build -ldflags="-s -w" -o ../edms.exe .
 if %ERRORLEVEL% neq 0 (
     echo Error: Failed to build Go application.
     exit /b %ERRORLEVEL%
