@@ -90,11 +90,15 @@ func (a *App) HandlePostLogin(c echo.Context) error {
 	// Validate the user's credentials
 	user, err := a.DB.GetUserByUsername(username)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid credentials"})
+		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+			"error": "Invalid username or password",
+		})
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return c.JSON(http.StatusUnauthorized, map[string]string{"error": "Invalid credentials"})
+		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+			"error": "Invalid username or password",
+		})
 	}
 
 	// Create a new JWT token
@@ -102,7 +106,9 @@ func (a *App) HandlePostLogin(c echo.Context) error {
 
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
+	claims["id"] = user.UserID
 	claims["name"] = user.Username
+	claims["role"] = user.Role
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	// Get the token secret from the environment

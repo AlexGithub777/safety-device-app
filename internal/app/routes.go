@@ -49,7 +49,6 @@ func JWTMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 			return echo.NewHTTPError(http.StatusBadRequest, "invalid jwt token")
 		}
-
 		tokenString := cookie.Value
 
 		// Parse and validate the token
