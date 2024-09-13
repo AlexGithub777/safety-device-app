@@ -10,7 +10,9 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/sethvargo/go-password/password"
 	"golang.org/x/crypto/bcrypt"
+	gomail "gopkg.in/mail.v2"
 )
 
 // HandleGetLogin serves the home page
@@ -78,7 +80,75 @@ func (a *App) HandleGetForgotPassword(c echo.Context) error {
 
 // HandlePostForgotPassword handles the forgot password form submission
 func (a *App) HandlePostForgotPassword(c echo.Context) error {
-	return nil
+	email := c.FormValue("email")
+
+	// check if the email exists in the database
+	user, err := a.DB.GetUserByEmail(email)
+	if err != nil {
+		return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
+			"error": "Email not found",
+		})
+	}
+
+	// Generate a new password
+	res, err := password.Generate(15, 10, 5, false, false)
+	if err != nil {
+		return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
+			"error": "Could not generate password",
+		})
+	}
+	a.Logger.Printf("Generated password: %s", res)
+
+	// Hash the new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(res), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	// Update the user's password
+	err = a.DB.UpdatePassword(user.UserID, string(hashedPassword))
+	if err != nil {
+		return err
+	}
+
+	// Send the new password to the user's email
+	// You can use a service like SendGrid or SMTP to send the email
+	// use smtp package to send email
+	m := gomail.NewMessage()
+
+	// Set E-Mail sender
+	m.SetHeader("From", "alexscott200020@gmail.com")
+
+	// Set E-Mail receivers
+	m.SetHeader("To", email)
+
+	// Set E-Mail subject
+	m.SetHeader("Subject", "EDMS PASSWORD RESET")
+
+	// Set E-Mail body. You can set plain text or html with text/html
+	m.SetBody("text/plain", "Your Username is "+user.Username+", Your new password is: "+res)
+
+	// Add minimal styling to the email body
+	m.AddAlternative("text/html", `<html><body style="font-family: Arial, sans-serif; padding: 20px;">
+		<h2 style="color: #333;">EDMS PASSWORD RESET</h2>
+		<p style="margin-top: 20px;">Your Username is <strong>`+user.Username+`</strong></p>
+		<p>Your new password is: <strong>`+res+`</strong></p>
+	</body></html>`)
+
+	// Settings for SMTP server
+	d := gomail.NewDialer("smtp.gmail.com", 587, "alexscott200020@gmail.com", "rmua arvp tedv rvlr")
+
+	// Now send E-Mail
+	if err := d.DialAndSend(m); err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	// Render the forgot password page with a success message
+	return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
+		"message": fmt.Sprintf("Password reset successful. Check your %s for the new password: ", email),
+	})
+
 }
 
 // HandlePostRegister handles the register form submission
