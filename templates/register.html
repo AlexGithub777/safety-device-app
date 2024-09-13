@@ -20,6 +20,55 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
         ></script>
+
+        <!-- Toastify JS -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.js"
+            integrity="sha512-MnKz2SbnWiXJ/e0lSfSzjaz9JjJXQNb2iykcZkEY2WOzgJIWVqJBFIIPidlCjak0iTH2bt2u1fHQ4pvKvBYy6Q=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <!-- Toastify CSS-->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
+            integrity="sha512-VSD3lcSci0foeRFRHWdYX4FaLvec89irh5+QAGc00j5AOdow2r5MFPhoPEYBUQdyarXwbzyJEO7Iko7+PnPuBw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // Get the error message from the server-side data
+                var message = "{{.message}}";
+                var error = "{{.error}}";
+
+                // If there's an error message, display it with Toastify
+                if (message) {
+                    Toastify({
+                        text: message,
+                        duration: 6000,
+                        close: true,
+                        gravity: "top", // `top` or `bottom`
+                        position: "center", // `left`, `center` or `right`
+                        backgroundColor:
+                            "linear-gradient(to right, #008000, #008000)",
+                    }).showToast();
+                }
+
+                if (error) {
+                    Toastify({
+                        text: error,
+                        duration: 6000,
+                        close: true,
+                        gravity: "top", // `top` or `bottom`
+                        position: "center", // `left`, `center` or `right`
+                        backgroundColor:
+                            "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                }
+            });
+        </script>
     </head>
     <body class="bg-dark">
         <section class="h-100">

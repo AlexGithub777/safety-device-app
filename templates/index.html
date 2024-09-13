@@ -40,6 +40,7 @@
             $(document).ready(function () {
                 // Get the error message from the server-side data
                 var error = "{{.error}}";
+                var success = "{{.success}}";
 
                 // If there's an error message, display it with Toastify
                 if (error) {
@@ -47,7 +48,7 @@
                         text: error,
                         duration: 3000,
                         close: true,
-                        gravity: "bottom", // `top` or `bottom`
+                        gravity: "top", // `top` or `bottom`
                         position: "center", // `left`, `center` or `right`
                         backgroundColor:
                             "linear-gradient(to right, #ff5f6d, #ffc371)",

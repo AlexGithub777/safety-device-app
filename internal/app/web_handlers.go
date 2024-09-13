@@ -97,7 +97,6 @@ func (a *App) HandlePostForgotPassword(c echo.Context) error {
 			"error": "Could not generate password",
 		})
 	}
-	a.Logger.Printf("Generated password: %s", res)
 
 	// Hash the new password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(res), bcrypt.DefaultCost)
@@ -166,16 +165,25 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 	}
 
 	// Create a new user
+	// Check if the user already exists
+	existingUser, err := a.DB.GetUserByUsername(username)
+	if err == nil && existingUser.Username == username {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Username already exists",
+		})
+	}
+
+	existingEmail, err := a.DB.GetUserByEmail(email)
+	if err == nil && existingEmail.Email == email {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Email already exists",
+		})
+	}
+
 	user := models.User{
 		Username: username,
 		Email:    email,
 		Password: string(hashedPassword),
-	}
-
-	// Check if the user already exists
-	existingUser, err := a.DB.GetUserByUsername(username)
-	if err == nil {
-		return fmt.Errorf("user %s already exists", existingUser.Username)
 	}
 
 	// Create the user
@@ -184,8 +192,13 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 		return err
 	}
 
-	// Redirect to the login page
-	return c.Redirect(http.StatusSeeOther, "/")
+	// Generate a success message
+	message := fmt.Sprintf("Registration successful. Please login with your username: %s", username)
+
+	// Render the login page with the success message
+	return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+		"message": message,
+	})
 }
 
 func (a *App) HandlePostLogin(c echo.Context) error {
