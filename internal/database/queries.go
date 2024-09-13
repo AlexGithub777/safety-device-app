@@ -32,7 +32,7 @@ func (db *DB) CreateUser(user *models.User) error {
 // Get user by username function
 func (db *DB) GetUserByUsername(username string) (*models.User, error) {
 	query := `
-		SELECT userid, username, password, email
+		SELECT userid, username, password, email, role
 		FROM userT
 		WHERE username = $1
 		`
@@ -42,6 +42,7 @@ func (db *DB) GetUserByUsername(username string) (*models.User, error) {
 		&user.Username,
 		&user.Password,
 		&user.Email,
+		&user.Role,
 	)
 
 	if err != nil {
