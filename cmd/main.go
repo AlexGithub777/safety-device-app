@@ -10,7 +10,6 @@ import (
 
 	"github.com/AlexGithub777/safety-device-app/internal/app"
 	"github.com/AlexGithub777/safety-device-app/internal/config"
-	"github.com/AlexGithub777/safety-device-app/internal/utils"
 )
 
 func main() {
@@ -23,14 +22,11 @@ func main() {
 	// Get the local IP that has Internet connectivity
 	//ip := utils.GetLocalIP().String()
 
-	// Log the server's starting message with the local IP
-	ip := utils.GetLocalIP().String()
-	//log.Printf("Starting HTTP service on http://%s:3000", ip)
-	log.Printf("Starting HTTP service on http://%s:3000", ip)
+	log.Printf("Starting HTTP service on http://localhost:3000")
 
 	// HTTP listener is in a goroutine as its blocking
 	go func() {
-		if err := application.Router.Start(ip + ":3000"); err != nil && err != http.ErrServerClosed {
+		if err := application.Router.Start("localhost" + ":3000"); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Error starting the server: %v", err)
 		}
 	}()

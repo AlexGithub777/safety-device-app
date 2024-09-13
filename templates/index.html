@@ -20,6 +20,41 @@
             integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
             crossorigin="anonymous"
         ></script>
+        <!-- Toastify JS -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.js"
+            integrity="sha512-MnKz2SbnWiXJ/e0lSfSzjaz9JjJXQNb2iykcZkEY2WOzgJIWVqJBFIIPidlCjak0iTH2bt2u1fHQ4pvKvBYy6Q=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <!-- Toastify CSS-->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.6.1/toastify.css"
+            integrity="sha512-VSD3lcSci0foeRFRHWdYX4FaLvec89irh5+QAGc00j5AOdow2r5MFPhoPEYBUQdyarXwbzyJEO7Iko7+PnPuBw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+                // Get the error message from the server-side data
+                var error = "{{.error}}";
+
+                // If there's an error message, display it with Toastify
+                if (error) {
+                    Toastify({
+                        text: error,
+                        duration: 3000,
+                        close: true,
+                        gravity: "bottom", // `top` or `bottom`
+                        position: "center", // `left`, `center` or `right`
+                        backgroundColor:
+                            "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                }
+            });
+        </script>
 
         <!-- Custom CSS-->
         <link rel="stylesheet" href="/static/login.css" />
@@ -45,22 +80,24 @@
                                     Login
                                 </h1>
                                 <form
-                                    method="POST"
                                     class="needs-validation"
                                     novalidate=""
                                     autocomplete="off"
+                                    id="login-form"
+                                    action="/login"
+                                    method="POST"
                                 >
                                     <div class="mb-3">
                                         <label
                                             class="mb-2 text-muted"
-                                            for="email"
-                                            >E-Mail Address</label
+                                            for="username"
+                                            >Username</label
                                         >
                                         <input
-                                            id="email"
-                                            type="email"
+                                            id="username"
+                                            type="text"
                                             class="form-control"
-                                            name="email"
+                                            name="username"
                                             value=""
                                             required
                                             autofocus
@@ -113,7 +150,6 @@
                                         <button
                                             type="submit"
                                             class="btn btn-primary ms-auto"
-                                            onclick="login()"
                                         >
                                             Login
                                         </button>
@@ -144,10 +180,6 @@
                         location.reload();
                     });
                 };
-            }
-
-            function login() {
-                window.location.href = "/dashboard";
             }
         </script>
     </body>

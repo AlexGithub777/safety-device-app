@@ -7,6 +7,97 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 )
 
+// Create user function
+func (db *DB) CreateUser(user *models.User) error {
+	query := `
+		INSERT INTO userT (username, password, email)
+		VALUES ($1, $2, $3)
+		`
+	insertStmt, err := db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer insertStmt.Close()
+
+	_, err = insertStmt.Exec(user.Username, user.Password, user.Email)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get user by username function
+func (db *DB) GetUserByUsername(username string) (*models.User, error) {
+	query := `
+		SELECT userid, username, password, email, role
+		FROM userT
+		WHERE username = $1
+		`
+	var user models.User
+	err := db.QueryRow(query, username).Scan(
+		&user.UserID,
+		&user.Username,
+		&user.Password,
+		&user.Email,
+		&user.Role,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+// Update password function
+func (db *DB) UpdatePassword(userid int, password string) error {
+	query := `
+		UPDATE userT
+		SET password = $1
+		WHERE userid = $2
+		`
+	updateStmt, err := db.Prepare(query)
+	if err != nil {
+		return err
+	}
+
+	defer updateStmt.Close()
+
+	_, err = updateStmt.Exec(password, userid)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get user by email function
+func (db *DB) GetUserByEmail(email string) (*models.User, error) {
+	query := `
+		SELECT userid, username, password, email, role
+		FROM userT
+		WHERE email = $1
+		`
+	var user models.User
+	err := db.QueryRow(query, email).Scan(
+		&user.UserID,
+		&user.Username,
+		&user.Password,
+		&user.Email,
+		&user.Role,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
 // Refactor/add new function to GetAllDevices by Site
 func (db *DB) GetAllDevices(siteId string, buildingCode string) ([]models.EmergencyDevice, error) {
 	var query string
