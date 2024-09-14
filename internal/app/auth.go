@@ -52,12 +52,16 @@ func (a *App) HandlePostForgotPassword(c echo.Context) error {
 
 	// Update the user's password
 	if err := a.DB.UpdatePassword(user.UserID, string(hashedPassword)); err != nil {
-		return err
+		return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
+			"error": "Could not update password",
+		})
 	}
 
 	// Send the new password to the user's email
 	if err := sendPasswordResetEmail(email, user.Username, newPassword); err != nil {
-		return err
+		return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
+			"email": "Could not send email, but password reset successful. Your new password is: " + newPassword,
+		})
 	}
 
 	// Render the forgot password page with a success message
@@ -75,7 +79,9 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Could not hash password",
+		})
 	}
 
 	// Check if the user or email already exists
@@ -99,7 +105,9 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 	}
 
 	if err := a.DB.CreateUser(&user); err != nil {
-		return err
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Could not create user",
+		})
 	}
 
 	// Generate a success message
@@ -132,7 +140,9 @@ func (a *App) HandlePostLogin(c echo.Context) error {
 	// Generate token
 	token, err := GenerateToken(user, expiresAt)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "Could not generate token"})
+		return c.Render(http.StatusOK, "index.html", map[string]interface{}{
+			"error": "Could not generate token",
+		})
 	}
 
 	// Set the token as a cookie
@@ -142,7 +152,8 @@ func (a *App) HandlePostLogin(c echo.Context) error {
 		Expires:  expiresAt,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false, // Set to true if using HTTPS
+		Secure:   true, // Set to true if using HTTPS
+		SameSite: http.SameSiteStrictMode,
 	}
 	c.SetCookie(cookie)
 
@@ -159,6 +170,8 @@ func (a *App) HandleGetLogout(c echo.Context) error {
 		Expires:  time.Now().Add(-time.Hour),
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true, // Set to true if using HTTPS
+		SameSite: http.SameSiteStrictMode,
 	}
 	c.SetCookie(cookie)
 
@@ -179,6 +192,7 @@ func (a *App) HandleGetLogin(c echo.Context) error {
 				c.Set("user", claims.UserID)
 				c.Set("username", claims.Username)
 				c.Set("role", claims.Role)
+				c.Set("email", claims.Email)
 
 				// User is already logged in, redirect to the dashboard
 				return c.Redirect(http.StatusSeeOther, "/dashboard")
@@ -221,7 +235,7 @@ func parseToken(tokenString string) (*jwt.Token, error) {
 // sendPasswordResetEmail sends a password reset email
 func sendPasswordResetEmail(email, username, newPassword string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "alexscott200020@gmail.com")
+	m.SetHeader("From", "alexscott200020@gmail.com") // Replace with different email
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", "EDMS PASSWORD RESET")
 	m.SetBody("text/plain", "Your Username is "+username+", Your new password is: "+newPassword)
