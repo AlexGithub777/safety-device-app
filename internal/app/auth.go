@@ -99,23 +99,25 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
 			"error": "Invalid email address",
 		})
-	}
 
-	// Validate password
-	passwordLengthRegex := regexp.MustCompile(`.{8,}`)
-	passwordDigitRegex := regexp.MustCompile(`[0-9]`)
-	passwordSpecialCharRegex := regexp.MustCompile(`[!@#$%^&*]`)
-
-	if !passwordLengthRegex.MatchString(password) || !passwordDigitRegex.MatchString(password) || !passwordSpecialCharRegex.MatchString(password) {
-		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
-			"error": "Password must contain at least one number and one special character and be at least 8 characters long",
-		})
 	}
 
 	// Validate password confirmation
 	if password != confirmpassword {
 		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
 			"error": "Passwords do not match",
+		})
+	}
+
+	// Validate password
+	passwordLengthRegex := regexp.MustCompile(`.{8,}`)
+	passwordDigitRegex := regexp.MustCompile(`[0-9]`)
+	passwordSpecialCharRegex := regexp.MustCompile(`[!@#$%^&*]`)
+	passwordCapitalLetterRegex := regexp.MustCompile(`[A-Z]`)
+
+	if !passwordLengthRegex.MatchString(password) || !passwordDigitRegex.MatchString(password) || !passwordSpecialCharRegex.MatchString(password) || !passwordCapitalLetterRegex.MatchString(password) {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Password must contain at least one number, one special character, one capital letter, and be at least 8 characters long",
 		})
 	}
 
