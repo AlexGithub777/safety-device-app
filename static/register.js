@@ -1,27 +1,41 @@
-// Function to submit form data for register
-function register() {
-    // Get the form data
-    var form = document.getElementById("registerForm");
-    registerForm.onsubmit = function () {
-        if (
-            this.elements["password"].value !=
-            this.elements["confirm-password"].value
-        ) {
-            alert("Password not match");
-            return false;
+(function () {
+    "use strict";
+
+    console.log("Register JS loaded");
+
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.querySelectorAll(".needs-validation");
+
+    // Loop over them and prevent submission
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener(
+            "submit",
+            function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+
+                form.classList.add("was-validated");
+            },
+            false
+        );
+    });
+})();
+
+// Custom validation for password confirmation
+window.addEventListener("load", function () {
+    var password = document.getElementById("password");
+    var confirmPassword = document.getElementById("confirm-password");
+
+    function validatePassword() {
+        if (password.value != confirmPassword.value) {
+            confirmPassword.setCustomValidity("Passwords do not match.");
+        } else {
+            confirmPassword.setCustomValidity("");
         }
-        if (
-            this.elements["username"].value.length < 6 ||
-            this.elements["password"].value.length < 6
-        ) {
-            alert("Username and password must has at least 6 characters");
-            return false;
-        }
-        if (
-            this.elements["username"].value == this.elements["password"].value
-        ) {
-            alert("Username must different password");
-            return false;
-        }
-    };
-}
+    }
+
+    password.onchange = validatePassword;
+    confirmPassword.onkeyup = validatePassword;
+});

@@ -95,16 +95,16 @@
                                             >Username</label
                                         >
                                         <input
-                                            id="username"
-                                            type="text"
+                                            id="email"
+                                            type="email"
                                             class="form-control"
-                                            name="username"
+                                            name="email"
                                             value=""
+                                            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                                             required
-                                            autofocus
                                         />
                                         <div class="invalid-feedback">
-                                            Email is invalid
+                                            Invalid email address.
                                         </div>
                                     </div>
 
@@ -128,9 +128,10 @@
                                             class="form-control"
                                             name="password"
                                             required
+                                            pattern="(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
                                         />
                                         <div class="invalid-feedback">
-                                            Password is required
+                                            Invalid password.
                                         </div>
                                     </div>
 

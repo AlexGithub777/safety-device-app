@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -75,6 +76,48 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 	username := c.FormValue("username")
 	email := c.FormValue("email")
 	password := c.FormValue("password")
+	confirmpassword := c.FormValue("confirm-password")
+
+	// Validate the form data
+	if username == "" || email == "" || password == "" || confirmpassword == "" {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "All fields are required",
+		})
+	}
+
+	// Validate username
+	usernameRegex := regexp.MustCompile(`^[a-zA-Z0-9_]{6,}$`)
+	if !usernameRegex.MatchString(username) {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Username must be at least 6 characters and contain only letters, numbers, and underscores",
+		})
+	}
+
+	// Validate email
+	emailRegex := regexp.MustCompile(`[^@\s]+@[^@\s]+\.[^@\s]+`)
+	if !emailRegex.MatchString(email) {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Invalid email address",
+		})
+	}
+
+	// Validate password
+	passwordLengthRegex := regexp.MustCompile(`.{8,}`)
+	passwordDigitRegex := regexp.MustCompile(`[0-9]`)
+	passwordSpecialCharRegex := regexp.MustCompile(`[!@#$%^&*]`)
+
+	if !passwordLengthRegex.MatchString(password) || !passwordDigitRegex.MatchString(password) || !passwordSpecialCharRegex.MatchString(password) {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Password must contain at least one number and one special character and be at least 8 characters long",
+		})
+	}
+
+	// Validate password confirmation
+	if password != confirmpassword {
+		return c.Render(http.StatusOK, "register.html", map[string]interface{}{
+			"error": "Passwords do not match",
+		})
+	}
 
 	// Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)

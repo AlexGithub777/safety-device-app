@@ -94,9 +94,9 @@
                                     id="register-form"
                                     method="POST"
                                     class="needs-validation"
-                                    novalidate=""
                                     autocomplete="off"
                                     action="/register"
+                                    novalidate
                                 >
                                     <div class="mb-3">
                                         <label
@@ -111,12 +111,14 @@
                                             name="username"
                                             value=""
                                             required
-                                            minlength="8"
+                                            minlength="6"
                                             autofocus
+                                            pattern="^[a-zA-Z0-9_]{6,}$"
                                         />
                                         <div class="invalid-feedback">
-                                            Username is required and should be
-                                            at least 8 characters long.
+                                            Username must be at least 6
+                                            characters long and contain only
+                                            letters, numbers, and underscores.
                                         </div>
                                     </div>
 
@@ -132,10 +134,11 @@
                                             class="form-control"
                                             name="email"
                                             value=""
+                                            pattern="[^@\s]+@[^@\s]+\.[^@\s]+"
                                             required
                                         />
                                         <div class="invalid-feedback">
-                                            Email is invalid
+                                            Invalid email address.
                                         </div>
                                     </div>
 
@@ -154,10 +157,9 @@
                                             pattern="(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
                                         />
                                         <div class="invalid-feedback">
-                                            Password is required, should be at
-                                            least 8 characters long, and include
-                                            at least one number and one special
-                                            character.
+                                            Password must contain at least one
+                                            number and one special character and
+                                            be at least 8 characters long.
                                         </div>
                                     </div>
 
@@ -172,10 +174,11 @@
                                             type="password"
                                             class="form-control"
                                             name="confirm-password"
+                                            pattern="(?=.*\d)(?=.*[!@#$%^&*]).{8,}"
                                             required
                                         />
                                         <div class="invalid-feedback">
-                                            Please confirm your password.
+                                            Passwords do not match.
                                         </div>
                                     </div>
 
