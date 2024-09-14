@@ -1,12 +1,38 @@
-// hot reload
-if (window.EventSource) {
-    new EventSource("http://localhost:8090/internal/reload").onmessage = () => {
-        setTimeout(() => {
-            location.reload();
-        });
-    };
-}
 // Fetch users from the server
+fetch("/api/user")
+    .then((response) => response.json())
+    .then((users) => {
+        // Create a table row for each user
+        const userRows = users.map(
+            (user) => `
+<tr>
+<td data-label="Username">${user.username}</td>
+<td data-label="Email">${user.email}</td>
+<td data-label="Role">${user.role}</td>
+<td>
+    <div class="btn-group">
+        <button class="btn btn-primary edit-button" data-id="${user.user_id}">Edit</button>
+        <button class="btn btn-danger delete-button" data-id="${user.user_id}">Delete</button>
+    </div>
+</td>
+</tr>
+`
+        );
+
+        // Add the rows to the users table
+        $("#users-table tbody").html(userRows.join(""));
+
+        // Add event listeners to the edit and delete buttons
+        $(".edit-button").click((event) => {
+            const id = $(event.target).data("id");
+            // Handle edit
+        });
+        $(".delete-button").click((event) => {
+            const id = $(event.target).data("id");
+            // Handle delete
+        });
+    });
+
 // Fetch site data from the server
 fetch("/api/site")
     .then((response) => response.json())
@@ -15,9 +41,9 @@ fetch("/api/site")
         const siteRows = sites.map(
             (site) => `
 <tr>
-<td>${site.site_name}</td>
-<td>${site.site_address}</td>
-<td>
+<td data-label="Site Name">${site.site_name}</td>
+<td data-label="Site Address">${site.site_address}</td>
+<td data-label="Actions">
     <div class="btn-group">
         <button class="btn btn-primary edit-button" data-id="${site.site_id}">Edit</button>
         <button class="btn btn-danger delete-button" data-id="${site.site_id}">Delete</button>
@@ -49,8 +75,8 @@ fetch("/api/building")
         const buildingRows = buildings.map(
             (building) => `
 <tr>
-<td>${building.building_code}</td>
-<td>${building.site_name}</td>
+<td data-label="Building Code">${building.building_code}</td>
+<td data-label="Site Name">${building.site_name}</td>
 <td>
     <div class="btn-group">
         <button class="btn btn-primary edit-button" data-id="${building.building_id}">Edit</button>
@@ -83,9 +109,9 @@ fetch("/api/room")
         const roomRows = rooms.map(
             (room) => `
 <tr>
-<td>${room.room_code}</td>
-<td>${room.building_code}</td>
-<td>${room.site_name}</td>
+<td data-label="Room Code">${room.room_code}</td>
+<td data-label="Building Code">${room.building_code}</td>
+<td data-label="Site Name">${room.site_name}</td>
 <td>
     <div class="btn-group">
         <button class="btn btn-primary edit-button" data-id="${room.room_id}">Edit</button>
@@ -118,7 +144,7 @@ fetch("/api/emergency-device-type")
         const deviceTypeRows = deviceTypes.map(
             (deviceType) => `
 <tr>
-<td>${deviceType.emergency_device_type_name}</td>
+<td data-label="Device Type">${deviceType.emergency_device_type_name}</td>
 <td>
     <div class="btn-group">
         <button class="btn btn-primary edit-button" data-id="${deviceType.emergency_device_type_id}">Edit</button>

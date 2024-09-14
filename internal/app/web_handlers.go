@@ -1,14 +1,23 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 // HandleGetDashboard serves the dashboard page
 func (a *App) HandleGetDashboard(c echo.Context) error {
-	return c.Render(http.StatusOK, "dashboard.html", nil)
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	fmt.Println("User Name: ", claims["username"], "User ID: ", claims["user_id"], "User Role: ", claims["role"])
+
+	return c.Render(http.StatusOK, "dashboard.html", map[string]interface{}{
+		"username": claims["username"],
+		"role":     claims["role"],
+	})
 }
 
 // HandleGetAdmin serves the admin page

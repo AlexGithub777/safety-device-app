@@ -1,10 +1,3 @@
-// hot reload
-if (window.EventSource) {
-    new EventSource("http://localhost:8090/internal/reload").onmessage = () => {
-        location.reload();
-    };
-}
-
 // Leaflet map setup
 // SVG's intrinsic width/height or viewBox values
 const svgWidth = 561.568;
@@ -472,12 +465,6 @@ function DeviceNotes(description) {
     $("#notesModal").modal("show");
 }
 
-function ViewNotifications() {
-    console.log("View notifications");
-    $("#notificationsModal").modal("show");
-    // Add your view notifications logic here
-}
-
 // Function to toggle the map visibility
 function ToggleMap() {
     var map = document.getElementById("map");
@@ -496,8 +483,4 @@ function ToggleMap() {
         deviceList.classList.remove("col-xxl-10");
         deviceList.classList.add("col-xxl-12");
     }
-}
-
-function Logout() {
-    window.location.href = "/logout";
 }

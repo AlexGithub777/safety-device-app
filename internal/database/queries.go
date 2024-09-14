@@ -7,6 +7,35 @@ import (
 	"github.com/AlexGithub777/safety-device-app/internal/models"
 )
 
+// GetAllUsers function
+func (db *DB) GetAllUsers() ([]models.User, error) {
+	query := `SELECT userid, username, email, role FROM userT`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []models.User
+
+	for rows.Next() {
+		var user models.User
+		err := rows.Scan(
+			&user.UserID,
+			&user.Username,
+			&user.Email,
+			&user.Role,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return users, nil
+}
+
 // Create user function
 func (db *DB) CreateUser(user *models.User) error {
 	query := `

@@ -28,7 +28,7 @@ func (a *App) initRoutes() {
 		SuccessHandler: func(c echo.Context) {
 			user := c.Get("user").(*jwt.Token)
 			claims := user.Claims.(jwt.MapClaims)
-			fmt.Println("User Name: ", claims["name"], "User ID: ", claims["id"], "User Role: ", claims["role"])
+			fmt.Println("User Name: ", claims["username"], "User ID: ", claims["user_id"], "User Role: ", claims["role"])
 		},
 		ErrorHandler: func(c echo.Context, err error) error {
 			return c.Redirect(http.StatusSeeOther, "/")
@@ -41,7 +41,7 @@ func (a *App) initRoutes() {
 
 	// API routes
 	api := protected.Group("/api")
-
+	api.GET("/user", a.HandleGetAllUsers)
 	api.GET("/emergency-device", a.HandleGetAllDevices)
 	api.GET("/emergency-device-type", a.HandleGetAllDeviceTypes)
 	api.GET("/extinguisher-type", a.HandleGetAllExtinguisherTypes)

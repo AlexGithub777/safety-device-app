@@ -157,6 +157,8 @@ func (a *App) HandlePostLogin(c echo.Context) error {
 	}
 	c.SetCookie(cookie)
 
+	c.Set("user", token)
+
 	// Return the token in the response as well
 	return c.Redirect(http.StatusSeeOther, "/dashboard")
 }

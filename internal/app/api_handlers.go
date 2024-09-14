@@ -6,6 +6,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// HandleGetAllUsers fetches all users from the database and returns the results as JSON
+func (a *App) HandleGetAllUsers(c echo.Context) error {
+	users, err := a.DB.GetAllUsers()
+	if err != nil {
+		return a.handleError(c, http.StatusInternalServerError, "Error fetching data", err)
+	}
+
+	// Return the results as JSON
+	return c.JSON(http.StatusOK, users)
+}
+
 // GetAllDevices fetches all emergency devices from the database with optional filtering by building code
 // and returns the results as JSON
 func (a *App) HandleGetAllDevices(c echo.Context) error {

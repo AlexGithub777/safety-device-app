@@ -62,3 +62,31 @@
         flex-wrap: nowrap;
     }
 }
+
+/* nAVBAR CSS for Mobile Devices */
+@media (max-width: 990px) {
+    .navbar {
+        flex-direction: column;
+    }
+
+    .navbar .navbar-brand {
+        margin-bottom: 1em;
+    }
+
+    .navbar .navbar-nav {
+        flex-direction: column !important;
+        justify-content: start;
+    }
+
+    .navbar .navbar-nav .nav-item {
+        margin: 0.5em 0;
+    }
+
+    .navbar .navbar-nav .nav-item .nav-link {
+        padding: 0.5em 1em;
+    }
+
+    #brand-name {
+        display: none;
+    }
+}
