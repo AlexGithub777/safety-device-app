@@ -31,10 +31,7 @@ func (a *App) initRoutes() {
 			fmt.Println("User Name: ", claims["name"], "User ID: ", claims["id"], "User Role: ", claims["role"])
 		},
 		ErrorHandler: func(c echo.Context, err error) error {
-			return c.JSON(http.StatusUnauthorized, map[string]string{
-				"message": err.Error(),
-			})
-
+			return c.Redirect(http.StatusSeeOther, "/")
 		},
 	}))
 
