@@ -168,3 +168,25 @@ fetch("/api/emergency-device-type")
             // Handle delete
         });
     });
+
+// function to add site dropdown items to navbar
+function AddSiteOptions() {
+    fetch("/api/site")
+        .then((response) => response.json())
+        .then((data) => {
+            const dropdownMenu = document.getElementById("siteDropdown");
+            data.forEach((item) => {
+                const listItem = document.createElement("li");
+                const anchor = document.createElement("a");
+                anchor.classList.add("dropdown-item");
+                anchor.href = "#"; // replace with the actual link
+                anchor.textContent = item.site_name;
+                anchor.dataset.siteId = item.site_id; // store site_id in data attribute
+                listItem.appendChild(anchor);
+                dropdownMenu.appendChild(listItem);
+            });
+        })
+        .catch((error) => console.error("Error:", error));
+}
+
+AddSiteOptions();
