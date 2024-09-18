@@ -1,8 +1,9 @@
-module github.com/AlexGithub777/safety-device-app
+module github.com/AlexGithub777/BAP---Project
 
 go 1.22.5
 
 require (
+	github.com/AlexGithub777/safety-device-app v0.0.0-20240918121625-e8fb9c0d5a51
 	github.com/DATA-DOG/go-sqlmock v1.5.2
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/joho/godotenv v1.5.1
