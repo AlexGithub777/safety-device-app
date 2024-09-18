@@ -38,7 +38,7 @@ func (a *App) HandlePostForgotPassword(c echo.Context) error {
 	}
 
 	// Generate a new password
-	newPassword, err := password.Generate(15, 10, 5, false, false)
+	newPassword, err := password.Generate(10, 8, 2, false, false)
 	if err != nil {
 		return c.Render(http.StatusOK, "forgot_password.html", map[string]interface{}{
 			"error": "Could not generate password",
@@ -156,6 +156,7 @@ func (a *App) HandlePostRegister(c echo.Context) error {
 	}
 
 	// Generate a success message
+	// Maybe send a welcome email here
 	message := fmt.Sprintf("Registration successful. Please login with your username: %s", username)
 	return c.Render(http.StatusOK, "register.html", map[string]interface{}{
 		"message": message,
@@ -282,7 +283,8 @@ func parseToken(tokenString string) (*jwt.Token, error) {
 // sendPasswordResetEmail sends a password reset email
 func sendPasswordResetEmail(email, username, newPassword string) error {
 	m := gomail.NewMessage()
-	m.SetHeader("From", "alexscott200020@gmail.com") // Replace with different email
+	m.Reset()
+	m.SetHeader("From", "MS_kAX6BH@trial-jpzkmgqev0vg059v.mlsender.net")
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", "EDMS PASSWORD RESET")
 	m.SetBody("text/plain", "Your Username is "+username+", Your new password is: "+newPassword)
@@ -292,6 +294,10 @@ func sendPasswordResetEmail(email, username, newPassword string) error {
 		<p>Your new password is: <strong>`+newPassword+`</strong></p>
 	</body></html>`)
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, "alexscott200020@gmail.com", "rmua arvp tedv rvlr")
+	d := gomail.NewDialer("smtp.mailersend.net", 587, "MS_kAX6BH@trial-jpzkmgqev0vg059v.mlsender.net", "4GGgYHaff4fjn0Yg")
+
+	fmt.Println("Sending email to", email)
+	fmt.Println("Username:", username)
+	fmt.Println("New Password:", newPassword)
 	return d.DialAndSend(m)
 }

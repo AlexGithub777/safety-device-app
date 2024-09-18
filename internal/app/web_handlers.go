@@ -22,7 +22,13 @@ func (a *App) HandleGetDashboard(c echo.Context) error {
 
 // HandleGetAdmin serves the admin page
 func (a *App) HandleGetAdmin(c echo.Context) error {
-	return c.Render(http.StatusOK, "admin.html", nil)
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	fmt.Println("User Name: ", claims["username"], "User ID: ", claims["user_id"], "User Role: ", claims["role"])
+	return c.Render(http.StatusOK, "admin.html", map[string]interface{}{
+		"username": claims["username"],
+		"role":     claims["role"],
+	})
 }
 
 // HandleGetRegister serves the register page
